@@ -46,6 +46,9 @@ pub trait Reader {
 
   /// Get table names in a specific sheet
   table_names_in_sheet(Self, String) -> Array[String]
+
+  /// Get all pictures, tuple as (ext: String, data: Bytes)
+  pictures(Self) -> Array[(String, Bytes)]?
 }
 
 ///|
@@ -237,6 +240,12 @@ impl Reader for OdsReader with table_names_in_sheet(self, sheet_name) {
 }
 
 ///|
+impl Reader for OdsReader with pictures(self) {
+  // For now, return None - real implementation would extract pictures from ODS
+  None
+}
+
+///|
 impl Reader for XlsbReader with load_tables(self) {
   // For now, no-op - real implementation would parse tables from XLSB
   return
@@ -258,6 +267,12 @@ impl Reader for XlsbReader with table_names(self) {
 impl Reader for XlsbReader with table_names_in_sheet(self, sheet_name) {
   // For now, return empty array - real implementation would return table names in sheet
   []
+}
+
+///|
+impl Reader for XlsbReader with pictures(self) {
+  // For now, return None - real implementation would extract pictures from XLSB
+  None
 }
 
 ///|
@@ -341,6 +356,12 @@ impl Reader for XlsReader with table_names_in_sheet(self, sheet_name) {
 }
 
 ///|
+impl Reader for XlsReader with pictures(self) {
+  // For now, return None - real implementation would extract pictures from XLS
+  None
+}
+
+///|
 impl Reader for XlsxReader with load_tables(self) {
   // For now, no-op - real implementation would parse tables from XLSX
   return
@@ -362,6 +383,12 @@ impl Reader for XlsxReader with table_names(self) {
 impl Reader for XlsxReader with table_names_in_sheet(self, sheet_name) {
   // For now, return empty array - real implementation would return table names in sheet
   []
+}
+
+///|
+impl Reader for XlsxReader with pictures(self) {
+  // For now, return None - real implementation would extract pictures from XLSX
+  None
 }
 
 ///|
@@ -552,6 +579,16 @@ impl Reader for AutoWorkbook with table_names_in_sheet(self, sheet_name) {
     Xls(reader) => reader.table_names_in_sheet(sheet_name)
     Xlsb(reader) => reader.table_names_in_sheet(sheet_name)
     Ods(reader) => reader.table_names_in_sheet(sheet_name)
+  }
+}
+
+///|
+impl Reader for AutoWorkbook with pictures(self) {
+  match self {
+    Xlsx(reader) => reader.pictures()
+    Xls(reader) => reader.pictures()
+    Xlsb(reader) => reader.pictures()
+    Ods(reader) => reader.pictures()
   }
 }
 
