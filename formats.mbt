@@ -24,7 +24,6 @@ pub fn detect_custom_number_format(format : String) -> CellFormat {
   let mut prev = ' '
   let mut hms = false
   let mut ap = false
-  
   for char in format {
     match (char, escaped, is_quote, ap, brackets) {
       // If escaped, ignore this character  
@@ -40,29 +39,40 @@ pub fn detect_custom_number_format(format : String) -> CellFormat {
       // Handle brackets for duration detection
       ('[', false, false, _, _) => brackets = brackets + 1
       (']', false, false, _, b) if b > 0 && hms => return TimeDelta
-      (']', false, false, _, b) if b > 0 => brackets = brackets - 1
+      (']', false, false, _, b) if b > 0 =>
+        brackets = if brackets > 0 { brackets - 1 } else { 0 }
       // AM/PM detection
       ('a', false, false, false, 0) | ('A', false, false, false, 0) => ap = true
-      ('p', false, false, true, 0) | ('P', false, false, true, 0) | 
-      ('m', false, false, true, 0) | ('M', false, false, true, 0) |
-      ('/', false, false, true, 0) => return DateTime
+      ('p', false, false, true, 0)
+      | ('P', false, false, true, 0)
+      | ('m', false, false, true, 0)
+      | ('M', false, false, true, 0)
+      | ('/', false, false, true, 0) => return DateTime
       // Date/time format characters
-      ('d', false, false, false, 0) | ('D', false, false, false, 0) |
-      ('m', false, false, false, 0) | ('M', false, false, false, 0) |
-      ('h', false, false, false, 0) | ('H', false, false, false, 0) |
-      ('y', false, false, false, 0) | ('Y', false, false, false, 0) |
-      ('s', false, false, false, 0) | ('S', false, false, false, 0) => return DateTime
-      _ => {
-        if hms && (char == prev) {
-          // Continue hms detection
+      ('d', false, false, false, 0)
+      | ('D', false, false, false, 0)
+      | ('m', false, false, false, 0)
+      | ('M', false, false, false, 0)
+      | ('h', false, false, false, 0)
+      | ('H', false, false, false, 0)
+      | ('y', false, false, false, 0)
+      | ('Y', false, false, false, 0)
+      | ('s', false, false, false, 0)
+      | ('S', false, false, false, 0) => return DateTime
+      _ =>
+        if hms && char == prev {
+          // Continue hms detection - do nothing
         } else {
-          hms = prev == '[' && (
-            char == 'm' || char == 'M' || 
-            char == 'h' || char == 'H' || 
-            char == 's' || char == 'S'
-          )
+          hms = prev == '[' &&
+            (
+              char == 'm' ||
+              char == 'M' ||
+              char == 'h' ||
+              char == 'H' ||
+              char == 's' ||
+              char == 'S'
+            )
         }
-      }
     }
     prev = char
   }
@@ -74,27 +84,27 @@ pub fn detect_custom_number_format(format : String) -> CellFormat {
 pub fn builtin_format_by_id(id : String) -> CellFormat {
   match id {
     // mm-dd-yy
-    "14" |
+    "14"
     // d-mmm-yy  
-    "15" |
+    | "15"
     // d-mmm
-    "16" |
+    | "16"
     // mmm-yy
-    "17" |
+    | "17"
     // h:mm AM/PM
-    "18" |
+    | "18"
     // h:mm:ss AM/PM
-    "19" |
+    | "19"
     // h:mm
-    "20" |
+    | "20"
     // h:mm:ss
-    "21" |
+    | "21"
     // m/d/yy h:mm
-    "22" |
+    | "22"
     // mm:ss
-    "45" |
+    | "45"
     // mmss.0
-    "47" => DateTime
+    | "47" => DateTime
     // [h]:mm:ss
     "46" => TimeDelta
     _ => Other
@@ -119,16 +129,22 @@ pub fn format_excel_i64(
   is_1904 : Bool,
 ) -> Data {
   match format {
-    Some(DateTime) => Data::DateTime(ExcelDateTime::new(
-      value.to_double(),
-      ExcelDateTimeType::DateTime,
-      is_1904,
-    ))
-    Some(TimeDelta) => Data::DateTime(ExcelDateTime::new(
-      value.to_double(),
-      ExcelDateTimeType::TimeDelta,
-      is_1904,
-    ))
+    Some(DateTime) =>
+      Data::DateTime(
+        ExcelDateTime::new(
+          value.to_double(),
+          ExcelDateTimeType::DateTime,
+          is_1904,
+        ),
+      )
+    Some(TimeDelta) =>
+      Data::DateTime(
+        ExcelDateTime::new(
+          value.to_double(),
+          ExcelDateTimeType::TimeDelta,
+          is_1904,
+        ),
+      )
     _ => Data::Int(value)
   }
 }
@@ -141,16 +157,14 @@ pub fn format_excel_f64(
   is_1904 : Bool,
 ) -> Data {
   match format {
-    Some(DateTime) => Data::DateTime(ExcelDateTime::new(
-      value,
-      ExcelDateTimeType::DateTime,
-      is_1904,
-    ))
-    Some(TimeDelta) => Data::DateTime(ExcelDateTime::new(
-      value,
-      ExcelDateTimeType::TimeDelta,
-      is_1904,
-    ))
+    Some(DateTime) =>
+      Data::DateTime(
+        ExcelDateTime::new(value, ExcelDateTimeType::DateTime, is_1904),
+      )
+    Some(TimeDelta) =>
+      Data::DateTime(
+        ExcelDateTime::new(value, ExcelDateTimeType::TimeDelta, is_1904),
+      )
     _ => Data::Float(value)
   }
 }
@@ -163,16 +177,14 @@ pub fn format_excel_f64_ref(
   is_1904 : Bool,
 ) -> DataRef {
   match format {
-    Some(DateTime) => DataRef::DateTime(ExcelDateTime::new(
-      value,
-      ExcelDateTimeType::DateTime,
-      is_1904,
-    ))
-    Some(TimeDelta) => DataRef::DateTime(ExcelDateTime::new(
-      value,
-      ExcelDateTimeType::TimeDelta,
-      is_1904,
-    ))
+    Some(DateTime) =>
+      DataRef::DateTime(
+        ExcelDateTime::new(value, ExcelDateTimeType::DateTime, is_1904),
+      )
+    Some(TimeDelta) =>
+      DataRef::DateTime(
+        ExcelDateTime::new(value, ExcelDateTimeType::TimeDelta, is_1904),
+      )
     _ => DataRef::Float(value)
   }
 }
