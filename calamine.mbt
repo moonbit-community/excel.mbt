@@ -1462,3 +1462,35 @@ pub fn DataRef::to_data(self : DataRef) -> Data {
     Empty => Data::Empty
   }
 }
+
+///|
+/// A trait to constrain cells - equivalent to Rust's CellType trait
+/// Types that can be used as cell values must implement Default and Eq
+pub trait CellType: Default + Eq {
+  /// Check if a value equals the default value
+  is_default(Self) -> Bool
+}
+
+///|
+/// Implementation of CellType for Data
+impl CellType for Data with is_default(self) {
+  self == Data::Empty
+}
+
+///|
+/// Implementation of CellType for DataRef
+impl CellType for DataRef with is_default(self) {
+  self == DataRef::Empty
+}
+
+///|
+/// Implementation of CellType for String (useful for tests and simple cases)
+impl CellType for String with is_default(self) {
+  self.is_empty()
+}
+
+///|
+/// Implementation of CellType for Int (useful for tests)
+impl CellType for Int with is_default(self) {
+  self == 0
+}
