@@ -96,11 +96,10 @@ pub fn detect_workbook_type(data : Bytes) -> WorkbookType {
   if data[0] == 80 && data[1] == 75 && data[2] == 3 && data[3] == 4 {
     // It's a ZIP file, need to check content
     // For now, assume XLSX (we can improve this later)
-    return Xlsx
-  }
+    Xlsx
 
-  // Check for OLE2/CFB signature (XLS)
-  if data[0] == 208 &&
+    // Check for OLE2/CFB signature (XLS)  
+  } else if data[0] == 208 &&
     data[1] == 207 &&
     data[2] == 17 &&
     data[3] == 224 &&
@@ -108,9 +107,10 @@ pub fn detect_workbook_type(data : Bytes) -> WorkbookType {
     data[5] == 177 &&
     data[6] == 26 &&
     data[7] == 225 {
-    return Xls
+    Xls
+  } else {
+    Unknown
   }
-  Unknown
 }
 
 ///|

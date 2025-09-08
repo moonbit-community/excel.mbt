@@ -50,6 +50,16 @@ pub fn Dimensions::len(self : Dimensions) -> UInt64 {
 }
 
 ///|
+pub fn Dimensions::width(self : Dimensions) -> UInt {
+  self.end.1 - self.start.1 + 1U
+}
+
+///|
+pub fn Dimensions::height(self : Dimensions) -> UInt {
+  self.end.0 - self.start.0 + 1U
+}
+
+///|
 /// Type of sheet.
 pub(all) enum SheetType {
   /// A worksheet.
@@ -236,6 +246,72 @@ pub fn Data::is_error(self : Data) -> Bool {
 pub fn Data::get_string(self : Data) -> String? {
   match self {
     String(v) => Some(v)
+    _ => None
+  }
+}
+
+///|
+pub fn Data::get_int(self : Data) -> Int64? {
+  match self {
+    Int(v) => Some(v)
+    _ => None
+  }
+}
+
+///|
+pub fn Data::get_float(self : Data) -> Double? {
+  match self {
+    Float(v) => Some(v)
+    _ => None
+  }
+}
+
+///|
+pub fn Data::get_bool(self : Data) -> Bool? {
+  match self {
+    Bool(v) => Some(v)
+    _ => None
+  }
+}
+
+///|
+pub fn Data::as_i64(self : Data) -> Int64? {
+  match self {
+    Int(v) => Some(v)
+    Float(v) => Some(v.to_int64())
+    Bool(true) => Some(1L)
+    Bool(false) => Some(0L)
+    String(v) =>
+      // Try to parse the string as an integer
+      // For now, we'll implement a simple approach
+      if v == "0" {
+        Some(0L)
+      } else if v == "1" {
+        Some(1L)
+      } else {
+        None
+      }
+    _ => None
+  }
+}
+
+///|
+pub fn Data::as_f64(self : Data) -> Double? {
+  match self {
+    Int(v) => Some(v.to_double())
+    Float(v) => Some(v)
+    Bool(true) => Some(1.0)
+    Bool(false) => Some(0.0)
+    String(v) =>
+      // Try to parse the string as a float
+      // For now, we'll implement a simple approach
+      if v == "0.0" {
+        Some(0.0)
+      } else if v == "1.0" {
+        Some(1.0)
+      } else {
+        None
+      }
     _ => None
   }
 }
