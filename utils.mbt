@@ -76,24 +76,24 @@ pub fn push_column(col : UInt, buf : FixedArray[Char]) -> Unit {
   let mut index = 0
   let mut col = col
   if col < 26U {
-    buf[index] = Char::from_int((65 + col.reinterpret_as_int()))
+    buf[index] = (65 + col.reinterpret_as_int()).unsafe_to_char()
     return
   }
-  
+
   // For columns >= 26, we need to handle multi-character columns
   let temp_chars : Array[Char] = []
   while col >= 26U {
     let c = col % 26U
-    temp_chars.push(Char::from_int((65 + c.reinterpret_as_int())))
+    temp_chars.push((65 + c.reinterpret_as_int()).unsafe_to_char())
     col = col - c
     col = col / 26U
   }
-  
+
   // Add remaining character if any
   if col > 0U {
-    temp_chars.push(Char::from_int((65 + (col - 1U).reinterpret_as_int())))
+    temp_chars.push((65 + (col - 1U).reinterpret_as_int()).unsafe_to_char())
   }
-  
+
   // Reverse and copy to buffer
   for i = temp_chars.length() - 1; i >= 0; i = i - 1 {
     if index < buf.length() {
@@ -106,7 +106,7 @@ pub fn push_column(col : UInt, buf : FixedArray[Char]) -> Unit {
 ///|
 /// Convert column number to Excel column string
 pub fn column_to_string(col : UInt) -> String {
-  let buf = FixedArray::make(10, ' ')  // Should be enough for most columns
+  let buf = FixedArray::make(10, ' ') // Should be enough for most columns
   push_column(col, buf)
   let mut result = ""
   for i = 0; i < buf.length(); i = i + 1 {
@@ -122,11 +122,10 @@ pub fn column_to_string(col : UInt) -> String {
 pub fn get_function_name(index : UInt) -> String? {
   // Excel function table for formula parsing  
   let ftab = [
-    "COUNT", "IF", "ISNA", "ISERROR", "SUM", "AVERAGE", "MIN", "MAX",
-    "ROW", "COLUMN", "NA", "NPV", "STDEV", "DOLLAR", "FIXED", "SIN",
-    "COS", "TAN", "ATAN", "PI", "SQRT", "EXP", "LN", "LOG10",
-    "ABS", "INT", "SIGN", "ROUND", "LOOKUP", "INDEX", "REPT", "MID",
-    "LEN", "VALUE", "TRUE", "FALSE", "AND", "OR", "NOT", "MOD",
+    "COUNT", "IF", "ISNA", "ISERROR", "SUM", "AVERAGE", "MIN", "MAX", "ROW", "COLUMN",
+    "NA", "NPV", "STDEV", "DOLLAR", "FIXED", "SIN", "COS", "TAN", "ATAN", "PI", "SQRT",
+    "EXP", "LN", "LOG10", "ABS", "INT", "SIGN", "ROUND", "LOOKUP", "INDEX", "REPT",
+    "MID", "LEN", "VALUE", "TRUE", "FALSE", "AND", "OR", "NOT", "MOD",
   ]
   if index.reinterpret_as_int() < ftab.length() {
     Some(ftab[index.reinterpret_as_int()])
@@ -140,11 +139,11 @@ pub fn get_function_name(index : UInt) -> String? {
 pub fn get_function_argc(index : UInt) -> UInt? {
   // Excel function argument counts
   let ftab_argc = [
-    255U, 3U, 1U, 1U, 255U, 255U, 255U, 255U,  // COUNT, IF, ISNA, etc.
-    1U, 1U, 0U, 254U, 255U, 2U, 3U, 1U,        // ROW, COLUMN, NA, etc.
-    1U, 1U, 1U, 0U, 1U, 1U, 1U, 1U,           // COS, TAN, ATAN, etc.
-    1U, 1U, 1U, 2U, 3U, 4U, 2U, 3U,           // ABS, INT, SIGN, etc.
-    1U, 1U, 0U, 0U, 255U, 255U, 1U, 2U,       // LEN, VALUE, TRUE, etc.
+    255U, 3U, 1U, 1U, 255U, 255U, 255U, 255U, // COUNT, IF, ISNA, etc.
+     1U, 1U, 0U, 254U, 255U, 2U, 3U, 1U, // ROW, COLUMN, NA, etc.
+     1U, 1U, 1U, 0U, 1U, 1U, 1U, 1U, // COS, TAN, ATAN, etc.
+     1U, 1U, 1U, 2U, 3U, 4U, 2U, 3U, // ABS, INT, SIGN, etc.
+     1U, 1U, 0U, 0U, 255U, 255U, 1U, 2U, // LEN, VALUE, TRUE, etc.
   ]
   if index.reinterpret_as_int() < ftab_argc.length() {
     Some(ftab_argc[index.reinterpret_as_int()])
