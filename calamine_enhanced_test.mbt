@@ -62,16 +62,16 @@ test "Data as_i64 conversion with string parsing" {
 
 test "Data as_f64 conversion with string parsing" {
   let int_data = Data::Int(42L)
-  inspect(int_data.as_f64(), content="Some(42.0)")
+  inspect(int_data.as_f64(), content="Some(42)")
   
   let float_data = Data::Float(3.14)
   inspect(float_data.as_f64(), content="Some(3.14)")
   
   let string_zero = Data::String("0.0")
-  inspect(string_zero.as_f64(), content="Some(0.0)")
+  inspect(string_zero.as_f64(), content="Some(0)")
   
   let string_one = Data::String("1.0")
-  inspect(string_one.as_f64(), content="Some(1.0)")
+  inspect(string_one.as_f64(), content="Some(1)")
   
   let string_invalid = Data::String("not_a_number")
   inspect(string_invalid.as_f64(), content="None")
@@ -110,7 +110,7 @@ test "Excel datetime handling" {
   let excel_dt = ExcelDateTime::new(25569.0, ExcelDateTimeType::DateTime, false)
   inspect(excel_dt.is_datetime(), content="true")
   inspect(excel_dt.is_duration(), content="false")
-  inspect(excel_dt.as_f64(), content="25569.0")
+  inspect(excel_dt.as_f64(), content="25569")
   
   let excel_dur = ExcelDateTime::new(0.5, ExcelDateTimeType::TimeDelta, false)
   inspect(excel_dur.is_duration(), content="true")
