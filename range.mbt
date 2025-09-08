@@ -1,4 +1,5 @@
 //|
+
 ///|
 /// A struct to hold a cell position and value.
 pub(all) struct Cell[T] {

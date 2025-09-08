@@ -1,0 +1,700 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "myfreess/excel"
+
+// Values
+fn align_to_boundary(UInt, UInt) -> UInt
+
+fn[T : DataType] as_numeric(T) -> Double?
+
+fn builtin_format_by_code(UInt) -> CellFormat
+
+fn builtin_format_by_id(String) -> CellFormat
+
+fn byte_to_hex(Byte) -> String
+
+fn calculate_crc32(Bytes) -> UInt
+
+fn column_from_string(String) -> UInt?
+
+fn column_to_string(UInt) -> String
+
+fn decompress_stream(Bytes) -> Bytes raise CfbError
+
+fn detect_custom_number_format(String) -> CellFormat
+
+fn detect_workbook_type(Bytes) -> WorkbookType
+
+fn detect_workbook_type_with_extension(Bytes, String?) -> WorkbookType
+
+fn ends_with(String, String) -> Bool
+
+fn format_cell_reference(UInt, UInt) -> String
+
+fn format_excel_f64(Double, CellFormat?, Bool) -> Data
+
+fn format_excel_f64_ref(Double, CellFormat?, Bool) -> DataRef
+
+fn format_excel_i64(Int64, CellFormat?, Bool) -> Data
+
+fn get_file_extension(String) -> String?
+
+fn has_signature(Bytes, Bytes) -> Bool
+
+fn[T : DataType] is_any_datetime(T) -> Bool
+
+fn is_numeric_string(String) -> Bool
+
+fn is_power_of_two(UInt) -> Bool
+
+fn[T : DataType] is_text(T) -> Bool
+
+fn[T] iter_to_array(Array[T]) -> Array[T]
+
+fn join_strings(Array[String], String) -> String
+
+fn[R : Reader] open_workbook(Bytes) -> R raise CalamineError
+
+fn open_workbook_auto(Bytes) -> AutoWorkbook raise CalamineError
+
+fn open_workbook_auto_with_filename(Bytes, String?) -> AutoWorkbook raise CalamineError
+
+fn parse_bool(String) -> Bool?
+
+fn parse_cell_reference(String) -> (UInt, UInt)?
+
+fn parse_double(String) -> Double?
+
+fn parse_double_advanced(String) -> Double?
+
+fn parse_int64(String) -> Int64?
+
+fn parse_int64_advanced(String) -> Int64?
+
+fn parse_range(String) -> Dimensions?
+
+fn push_column(UInt, FixedArray[Char]) -> Unit
+
+fn read_f64(Bytes, Int) -> Double?
+
+fn read_i16(Bytes, Int) -> Int?
+
+fn read_i32(Bytes, Int) -> Int?
+
+fn read_u16(Bytes, Int) -> UInt?
+
+fn read_u16_be(Bytes, Int) -> UInt?
+
+fn read_u32(Bytes, Int) -> UInt?
+
+fn read_u32_be(Bytes, Int) -> UInt?
+
+fn read_u64(Bytes, Int) -> UInt64?
+
+fn replace_string(String, String, String) -> String
+
+fn split_string(String, Char) -> Array[String]
+
+fn starts_with(String, String) -> Bool
+
+fn string_contains(String, String) -> Bool
+
+fn to_lowercase(String) -> String
+
+fn to_uppercase(String) -> String
+
+fn trim_string(String) -> String
+
+// Errors
+pub(all) suberror CalamineError {
+  Io(String)
+  Ods(OdsError)
+  Xls(XlsError)
+  Xlsb(XlsbError)
+  Xlsx(XlsxError)
+  Vba(VbaError)
+  De(DeError)
+  Msg(String)
+}
+impl Show for CalamineError
+
+pub(all) suberror CfbError {
+  Io(String)
+  Ole
+  EmptyRootDir
+  StreamNotFound(String)
+  Invalid(String, String, UInt)
+  CodePageNotFound(UInt)
+}
+impl Eq for CfbError
+impl Show for CfbError
+
+pub(all) suberror DeError {
+  MissingHeader(String)
+  UnknownHeader(String)
+  UnexpectedDataType(String)
+  IndexOutOfBounds
+  General(String)
+}
+fn DeError::to_error(Self) -> CalamineError
+impl Eq for DeError
+impl Show for DeError
+
+pub(all) suberror OdsError {
+  Io(String)
+  Xml(String)
+  XmlAttr(String)
+  Zip(String)
+  XmlEof(String)
+  FileNotFound(String)
+  Password
+  WorksheetNotFound(String)
+  CellError(String)
+  UnexpectedNode(String)
+}
+fn OdsError::to_error(Self) -> CalamineError
+impl Show for OdsError
+
+pub(all) suberror VbaError {
+  Cfb(CfbError)
+  Io(String)
+  ModuleNotFound(String)
+  Unknown(String, UInt)
+  LibId
+  InvalidRecordId(UInt, UInt)
+}
+fn VbaError::to_error(Self) -> CalamineError
+impl Eq for VbaError
+impl Show for VbaError
+
+pub(all) suberror XlsError {
+  Io(String)
+  InvalidBOM
+  BiffVersion(String)
+  Parse(String)
+  Password
+  WorksheetNotFound(String)
+  Dimensions(String)
+  General(String)
+}
+fn XlsError::to_error(Self) -> CalamineError
+impl Show for XlsError
+
+pub(all) suberror XlsbError {
+  Io(String)
+  Zip(String)
+  Vba(VbaError)
+  FileNotFound(String)
+  RelationshipNotFound
+  Password
+  WorksheetNotFound(String)
+  CellError(String)
+  Parse(String)
+  Unexpected(String)
+}
+fn XlsbError::to_error(Self) -> CalamineError
+impl Eq for XlsbError
+impl Show for XlsbError
+
+pub(all) suberror XlsxError {
+  Io(String)
+  Zip(String)
+  Vba(VbaError)
+  Xml(String)
+  XmlAttr(String)
+  Parse(String)
+  ParseInt(String)
+  ParseFloat(String)
+  XmlEof(String)
+  UnexpectedNode(String)
+  FileNotFound(String)
+  RelationshipNotFound
+  Alphanumeric(UInt)
+  NumericColumn(UInt)
+  RangeWithoutColumnComponent
+  RangeWithoutRowComponent
+  DimensionCount(UInt)
+  CellTAttribute(String)
+  Unexpected(String)
+  Unrecognized(String)
+  CellError(String)
+  Password
+  WorksheetNotFound(String)
+  TableNotFound(String)
+  NotAWorksheet(String)
+  Encoding(String)
+}
+fn XlsxError::to_error(Self) -> CalamineError
+impl Eq for XlsxError
+impl Show for XlsxError
+
+// Types and methods
+pub(all) enum AutoWorkbook {
+  Xlsx(XlsxReader)
+  Xls(XlsReader)
+  Xlsb(XlsbReader)
+  Ods(OdsReader)
+}
+impl Eq for AutoWorkbook
+impl Show for AutoWorkbook
+
+pub(all) struct Cell[T] {
+  pos : (UInt, UInt)
+  val : T
+}
+fn[T] Cell::get_column(Self[T]) -> UInt
+fn[T] Cell::get_position(Self[T]) -> (UInt, UInt)
+fn[T] Cell::get_row(Self[T]) -> UInt
+fn[T] Cell::get_value(Self[T]) -> T
+fn[T] Cell::get_value_ref(Self[T]) -> T
+fn[T] Cell::new((UInt, UInt), T) -> Self[T]
+fn[T] Cell::set_value(Self[T], T) -> Self[T]
+impl[T : Eq] Eq for Cell[T]
+impl[T : Show] Show for Cell[T]
+
+pub(all) enum CellErrorType {
+  Div0
+  NA
+  Name
+  Null
+  Num
+  Ref
+  Value
+  GettingData
+}
+fn CellErrorType::to_string(Self) -> String
+impl Eq for CellErrorType
+impl Show for CellErrorType
+
+pub(all) enum CellFormat {
+  Other
+  DateTime
+  TimeDelta
+}
+impl Eq for CellFormat
+impl Show for CellFormat
+
+pub(all) struct Cfb {
+  directories : Array[Directory]
+  sectors : Sectors
+  fats : Array[UInt]
+  mini_sectors : Sectors
+  mini_fats : Array[UInt]
+}
+fn Cfb::get_stream(Self, String, Bytes) -> Bytes raise CfbError
+fn Cfb::has_directory(Self, String) -> Bool
+fn Cfb::new(Bytes) -> Self raise CfbError
+impl Eq for Cfb
+impl Show for Cfb
+
+pub(all) enum Data {
+  Int(Int64)
+  Float(Double)
+  String(String)
+  Bool(Bool)
+  DateTime(ExcelDateTime)
+  DateTimeIso(String)
+  DurationIso(String)
+  Error(CellErrorType)
+  Empty
+}
+fn Data::as_f64(Self) -> Double?
+fn Data::as_i64(Self) -> Int64?
+fn Data::as_string(Self) -> String?
+fn Data::get_bool(Self) -> Bool?
+fn Data::get_datetime(Self) -> ExcelDateTime?
+fn Data::get_datetime_iso(Self) -> String?
+fn Data::get_duration_iso(Self) -> String?
+fn Data::get_error(Self) -> CellErrorType?
+fn Data::get_float(Self) -> Double?
+fn Data::get_int(Self) -> Int64?
+fn Data::get_string(Self) -> String?
+fn Data::is_bool(Self) -> Bool
+fn Data::is_datetime(Self) -> Bool
+fn Data::is_datetime_iso(Self) -> Bool
+fn Data::is_duration_iso(Self) -> Bool
+fn Data::is_empty(Self) -> Bool
+fn Data::is_error(Self) -> Bool
+fn Data::is_float(Self) -> Bool
+fn Data::is_int(Self) -> Bool
+fn Data::is_string(Self) -> Bool
+fn Data::to_json_string(Self) -> String
+impl Eq for Data
+impl Show for Data
+
+pub(all) enum DataRef {
+  Int(Int64)
+  Float(Double)
+  String(String)
+  SharedString(String)
+  Bool(Bool)
+  DateTime(ExcelDateTime)
+  DateTimeIso(String)
+  DurationIso(String)
+  Error(CellErrorType)
+  Empty
+}
+fn DataRef::as_f64(Self) -> Double?
+fn DataRef::as_i64(Self) -> Int64?
+fn DataRef::as_string(Self) -> String?
+fn DataRef::get_bool(Self) -> Bool?
+fn DataRef::get_datetime(Self) -> ExcelDateTime?
+fn DataRef::get_datetime_iso(Self) -> String?
+fn DataRef::get_duration_iso(Self) -> String?
+fn DataRef::get_error(Self) -> CellErrorType?
+fn DataRef::get_float(Self) -> Double?
+fn DataRef::get_int(Self) -> Int64?
+fn DataRef::get_string(Self) -> String?
+fn DataRef::is_bool(Self) -> Bool
+fn DataRef::is_datetime(Self) -> Bool
+fn DataRef::is_datetime_iso(Self) -> Bool
+fn DataRef::is_duration_iso(Self) -> Bool
+fn DataRef::is_empty(Self) -> Bool
+fn DataRef::is_error(Self) -> Bool
+fn DataRef::is_float(Self) -> Bool
+fn DataRef::is_int(Self) -> Bool
+fn DataRef::is_string(Self) -> Bool
+fn DataRef::to_data(Self) -> Data
+fn DataRef::to_json_string(Self) -> String
+fn DataRef::to_option_bool(Self) -> Bool?
+impl Eq for DataRef
+impl Show for DataRef
+
+pub(all) struct Dimensions {
+  start : (UInt, UInt)
+  end : (UInt, UInt)
+}
+fn Dimensions::contains(Self, UInt, UInt) -> Bool
+fn Dimensions::height(Self) -> UInt
+fn Dimensions::len(Self) -> UInt64
+fn Dimensions::new((UInt, UInt), (UInt, UInt)) -> Self
+fn Dimensions::width(Self) -> UInt
+impl Eq for Dimensions
+impl Show for Dimensions
+
+pub(all) struct Directory {
+  name : String
+  start : UInt
+  len : UInt
+}
+impl Eq for Directory
+impl Show for Directory
+
+pub(all) struct ExcelDateTime {
+  value : Double
+  datetime_type : ExcelDateTimeType
+  is_1904 : Bool
+}
+fn ExcelDateTime::as_date(Self) -> String
+fn ExcelDateTime::as_datetime(Self) -> String
+fn ExcelDateTime::as_duration(Self) -> String?
+fn ExcelDateTime::as_f64(Self) -> Double
+fn ExcelDateTime::as_time(Self) -> String
+fn ExcelDateTime::is_datetime(Self) -> Bool
+fn ExcelDateTime::is_duration(Self) -> Bool
+fn ExcelDateTime::new(Double, ExcelDateTimeType, Bool) -> Self
+impl Eq for ExcelDateTime
+impl Show for ExcelDateTime
+
+pub(all) enum ExcelDateTimeType {
+  DateTime
+  TimeDelta
+}
+impl Eq for ExcelDateTimeType
+impl Show for ExcelDateTimeType
+
+type Header
+impl Eq for Header
+impl Show for Header
+
+pub(all) enum HeaderRow {
+  FirstNonEmptyRow
+  Row(UInt)
+}
+impl Eq for HeaderRow
+impl Show for HeaderRow
+
+pub(all) struct Metadata {
+  sheets : Array[Sheet]
+  names : Array[(String, String)]
+}
+fn Metadata::add_name(Self, String, String) -> Unit
+fn Metadata::add_sheet(Self, Sheet) -> Unit
+fn Metadata::default() -> Self
+fn Metadata::sheet_names(Self) -> Array[String]
+impl Eq for Metadata
+impl Show for Metadata
+
+pub(all) struct OdsReader {
+  data : Bytes
+  header_row : HeaderRow
+  metadata : Metadata
+}
+impl Eq for OdsReader
+impl Show for OdsReader
+
+pub(all) struct Picture {
+  format : PictureFormat
+  data : Bytes
+  name : String?
+}
+fn Picture::new(String, Bytes, String?) -> Self
+impl Eq for Picture
+impl Show for Picture
+
+pub(all) enum PictureFormat {
+  Emf
+  Wmf
+  Pict
+  Jpeg
+  Png
+  Dib
+  Gif
+  Tiff
+  Eps
+  Bmp
+  Wpg
+  Unknown
+}
+fn PictureFormat::extension(Self) -> String
+impl Eq for PictureFormat
+impl Show for PictureFormat
+
+pub(all) struct Range[T] {
+  start : (UInt, UInt)
+  end : (UInt, UInt)
+  inner : Array[T]
+}
+fn[T] Range::absolute_position(Self[T], (UInt, UInt)) -> (UInt, UInt)?
+fn[T] Range::cell_count(Self[T]) -> UInt
+fn[T] Range::cells(Self[T]) -> Array[(UInt, UInt, T)]
+fn[T] Range::clone(Self[T]) -> Self[T]
+fn[T] Range::columns(Self[T]) -> Array[Array[T]]
+fn[T] Range::contains(Self[T], UInt, UInt) -> Bool
+fn[T] Range::count_if(Self[T], (T) -> Bool) -> UInt
+fn[T] Range::dimensions(Self[T]) -> Dimensions
+fn[T] Range::empty() -> Self[T]
+fn[T] Range::end(Self[T]) -> (UInt, UInt)?
+fn[T : Default] Range::extend_to_include(Self[T], Self[T]) -> Self[T]
+fn[T : Default] Range::filled((UInt, UInt), (UInt, UInt), T) -> Self[T]
+fn[T] Range::filter_positions(Self[T], (T) -> Bool) -> Array[(UInt, UInt)]
+fn[T] Range::find_first(Self[T], (T) -> Bool) -> (UInt, UInt, T)?
+fn[T : Default] Range::from_2d_array(Array[Array[T]], UInt, UInt) -> Self[T]
+fn Range::from_csv(String) -> Self[Data]
+fn[T : Default] Range::from_sparse(Array[Cell[T]]) -> Self[T]
+fn[T] Range::get(Self[T], (UInt, UInt)) -> T?
+fn[T] Range::get_cell(Self[T], (UInt, UInt)) -> T?
+fn[T] Range::get_column(Self[T], UInt) -> Array[T]?
+fn[T] Range::get_row(Self[T], UInt) -> ArrayView[T]?
+fn[T] Range::get_size(Self[T]) -> (UInt, UInt)
+fn[T] Range::get_value(Self[T], (UInt, UInt)) -> T?
+fn[T : Default + Eq] Range::has_data(Self[T]) -> Bool
+fn[T : Show] Range::headers(Self[T]) -> Array[String]?
+fn[T] Range::height(Self[T]) -> UInt
+fn[T] Range::is_empty(Self[T]) -> Bool
+fn[T] Range::len(Self[T]) -> UInt64
+fn[T, U : Default] Range::map(Self[T], (T) -> U) -> Self[U]
+fn[T : Default] Range::merge_horizontal(Self[T], Self[T]) -> Self[T]
+fn[T : Default] Range::merge_vertical(Self[T], Self[T]) -> Self[T]
+fn[T : Default] Range::new((UInt, UInt), (UInt, UInt)) -> Self[T]
+fn[T : Default] Range::range(Self[T], (UInt, UInt), (UInt, UInt)) -> Self[T]
+fn[T] Range::relative_position(Self[T], (UInt, UInt)) -> (UInt, UInt)?
+fn[T] Range::rows(Self[T]) -> Array[ArrayView[T]]
+fn[T, U] Range::same_dimensions(Self[T], Self[U]) -> Bool
+fn[T] Range::set_cell(Self[T], (UInt, UInt), T) -> Unit
+fn[T] Range::set_value(Self[T], (UInt, UInt), T) -> Unit
+fn[T] Range::start(Self[T]) -> (UInt, UInt)?
+fn[T] Range::to_2d_array(Self[T]) -> Array[Array[T]]
+fn[T : Show] Range::to_csv(Self[T]) -> String
+fn[T : Show] Range::to_json_array(Self[T]) -> String
+fn[T : Show] Range::to_tsv(Self[T]) -> String
+fn[T : Default] Range::transpose(Self[T]) -> Self[T]
+fn[T : Default + Eq] Range::used_cells(Self[T]) -> Array[(UInt, UInt, T)]
+fn[T] Range::width(Self[T]) -> UInt
+impl[T : Eq] Eq for Range[T]
+impl[T : Show] Show for Range[T]
+
+type Sectors
+impl Eq for Sectors
+impl Show for Sectors
+
+pub(all) struct Sheet {
+  name : String
+  typ : SheetType
+  visible : SheetVisible
+}
+impl Eq for Sheet
+impl Show for Sheet
+
+pub(all) enum SheetType {
+  WorkSheet
+  DialogSheet
+  MacroSheet
+  ChartSheet
+  Vba
+}
+impl Eq for SheetType
+impl Show for SheetType
+
+pub(all) enum SheetVisible {
+  Visible
+  Hidden
+  VeryHidden
+}
+impl Eq for SheetVisible
+impl Show for SheetVisible
+
+pub(all) struct Table[T] {
+  name : String
+  sheet_name : String
+  columns : Array[String]
+  data : Range[T]
+}
+fn[T] Table::columns(Self[T]) -> Array[String]
+fn[T] Table::data(Self[T]) -> Range[T]
+fn[T] Table::name(Self[T]) -> String
+fn[T] Table::sheet_name(Self[T]) -> String
+fn[T] Table::to_range(Self[T]) -> Range[T]
+impl[T : Eq] Eq for Table[T]
+impl[T : Show] Show for Table[T]
+
+type VbaModule
+impl Eq for VbaModule
+impl Show for VbaModule
+
+pub(all) struct VbaProject {
+  references : Array[VbaReference]
+  modules : Map[String, Bytes]
+  encoding : XlsEncoding
+  raw_data : Bytes
+}
+fn VbaProject::create_empty() -> Self
+fn VbaProject::from_cfb(Bytes, Cfb) -> Self raise VbaError
+fn VbaProject::get_module(Self, String) -> String raise VbaError
+fn VbaProject::get_module_names(Self) -> Array[String]
+fn VbaProject::get_module_raw(Self, String) -> Bytes raise VbaError
+fn VbaProject::get_references(Self) -> Array[VbaReference]
+fn VbaProject::new(Bytes) -> Self raise VbaError
+impl Eq for VbaProject
+impl Show for VbaProject
+
+pub(all) struct VbaReference {
+  name : String
+  description : String
+  path : String
+}
+fn VbaReference::is_missing(Self) -> Bool
+fn VbaReference::new(String, String, String) -> Self
+impl Eq for VbaReference
+impl Show for VbaReference
+
+pub enum WorkbookType {
+  Xlsx
+  Xls
+  Xlsb
+  Ods
+  Unknown
+}
+impl Eq for WorkbookType
+impl Show for WorkbookType
+
+pub(all) struct XlsEncoding {
+  codepage : UInt
+}
+fn XlsEncoding::decode_all(Self, Bytes) -> String
+fn XlsEncoding::decode_to(Self, Bytes, UInt, Bool?) -> (String, UInt, UInt)
+fn XlsEncoding::from_codepage(UInt) -> Self raise CfbError
+impl Eq for XlsEncoding
+impl Show for XlsEncoding
+
+pub(all) struct XlsReader {
+  data : Bytes
+  header_row : HeaderRow
+  metadata : Metadata
+}
+impl Eq for XlsReader
+impl Show for XlsReader
+
+pub(all) struct XlsbReader {
+  data : Bytes
+  header_row : HeaderRow
+  metadata : Metadata
+}
+impl Eq for XlsbReader
+impl Show for XlsbReader
+
+pub(all) struct XlsxReader {
+  data : Bytes
+  header_row : HeaderRow
+  metadata : Metadata
+}
+impl Eq for XlsxReader
+impl Show for XlsxReader
+
+// Type aliases
+pub typealias Result[T, CalamineError] as CalamineResult[T]
+
+pub typealias Result[T, OdsError] as OdsResult[T]
+
+pub typealias Result[T, XlsError] as XlsResult[T]
+
+pub typealias Result[T, XlsbError] as XlsbResult[T]
+
+pub typealias Result[T, XlsxError] as XlsxResult[T]
+
+// Traits
+pub trait CellType : Default + Eq {
+  is_default(Self) -> Bool
+}
+
+pub trait DataType {
+  is_empty(Self) -> Bool
+  is_int(Self) -> Bool
+  is_float(Self) -> Bool
+  is_bool(Self) -> Bool
+  is_string(Self) -> Bool
+  is_error(Self) -> Bool
+  is_datetime(Self) -> Bool
+  is_datetime_iso(Self) -> Bool
+  is_duration_iso(Self) -> Bool
+  get_int(Self) -> Int64?
+  get_float(Self) -> Double?
+  get_bool(Self) -> Bool?
+  get_string(Self) -> String?
+  get_datetime(Self) -> ExcelDateTime?
+  get_datetime_iso(Self) -> String?
+  get_duration_iso(Self) -> String?
+  get_error(Self) -> CellErrorType?
+  as_string(Self) -> String?
+  as_i64(Self) -> Int64?
+  as_f64(Self) -> Double?
+  as_date(Self) -> String?
+  as_time(Self) -> String?
+  as_duration(Self) -> String?
+  as_datetime(Self) -> String?
+}
+
+pub trait Reader {
+  new(Bytes) -> Self raise CalamineError
+  with_header_row(Self, HeaderRow) -> Self
+  vba_project(Self) -> VbaProject? raise CalamineError
+  metadata(Self) -> Metadata
+  worksheet_range(Self, String) -> Range[Data] raise CalamineError
+  worksheets(Self) -> Array[(String, Range[Data])]
+  worksheet_formula(Self, String) -> Range[String] raise CalamineError
+  sheet_names(Self) -> Array[String]
+  sheets_metadata(Self) -> Array[Sheet]
+  defined_names(Self) -> Array[(String, String)]
+  worksheet_range_at(Self, Int) -> Range[Data]? raise CalamineError
+  load_tables(Self) -> Unit raise CalamineError
+  table_by_name(Self, String) -> Table[Data]? raise CalamineError
+  table_names(Self) -> Array[String]
+  table_names_in_sheet(Self, String) -> Array[String]
+  pictures(Self) -> Array[(String, Bytes)]?
+}
+
+pub trait ReaderRef : Reader {
+  worksheet_range_ref(Self, String) -> Range[DataRef] raise CalamineError
+  worksheet_range_at_ref(Self, Int) -> Range[DataRef]? raise CalamineError
+  table_by_name_ref(Self, String) -> Table[DataRef]? raise CalamineError
+}
+

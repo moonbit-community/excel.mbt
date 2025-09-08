@@ -30,7 +30,6 @@ test "range_from_sparse" {
     Cell::new((2U, 1U), "C"),
   ]
   let range = Range::from_sparse(cells)
-  
   inspect(range.width(), content="2")
   inspect(range.height(), content="2")
   inspect(range.get_value((1U, 1U)), content="Some(\"A\")")
@@ -41,15 +40,9 @@ test "range_from_sparse" {
 ///|
 test "metadata_operations" {
   let metadata = Metadata::default()
-  let sheet = Sheet::{
-    name: "Sheet1",
-    typ: WorkSheet,
-    visible: Visible,
-  }
-  
+  let sheet = Sheet::{ name: "Sheet1", typ: WorkSheet, visible: Visible }
   metadata.add_sheet(sheet)
   metadata.add_name("Sheet1", "/xl/worksheets/sheet1.xml")
-  
   let names = metadata.sheet_names()
   inspect(names.length(), content="1")
   inspect(names[0], content="Sheet1")
@@ -64,7 +57,6 @@ test "table_operations" {
     columns: ["Col1", "Col2"],
     data: range,
   }
-  
   inspect(table.name(), content="Table1")
   inspect(table.sheet_name(), content="Sheet1")
   inspect(table.columns().length(), content="2")

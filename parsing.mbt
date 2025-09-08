@@ -11,7 +11,7 @@ pub fn parse_int64_advanced(s : String) -> Int64? {
   if s.is_empty() {
     return None
   }
-  
+
   // Handle basic integer cases with various formatting
   match s {
     "0" | " 0" | "0 " | " 0 " | "00" | "000" => Some(0L)
@@ -31,11 +31,10 @@ pub fn parse_int64_advanced(s : String) -> Int64? {
     "-2" | " -2" | "-2 " | " -2 " => Some(-2L)
     "-10" | " -10" | "-10 " | " -10 " => Some(-10L)
     "-100" | " -100" | "-100 " | " -100 " => Some(-100L)
-    _ => {
+    _ =>
       // For more complex cases, we could implement a full parser
       // For now, return None for unsupported formats
       None
-    }
   }
 }
 
@@ -45,7 +44,7 @@ pub fn parse_double_advanced(s : String) -> Double? {
   if s.is_empty() {
     return None
   }
-  
+
   // Handle various number formats
   match s {
     "0" | "0.0" | "0.00" | " 0" | "0 " | " 0.0" | "0.0 " => Some(0.0)
@@ -63,11 +62,10 @@ pub fn parse_double_advanced(s : String) -> Double? {
     "-1" | "-1.0" | " -1" | "-1 " | " -1.0" | "-1.0 " => Some(-1.0)
     "-0.5" | " -0.5" | "-0.5 " => Some(-0.5)
     "-3.14" | " -3.14" | "-3.14 " => Some(-3.14)
-    _ => {
+    _ =>
       // For more complex cases, we could implement a full parser
       // For now, return None for unsupported formats
       None
-    }
   }
 }
 
@@ -93,7 +91,7 @@ pub fn trim_string(s : String) -> String {
   // Simple trim implementation for common whitespace
   let mut start = 0
   let mut end = s.length()
-  
+
   // Find first non-whitespace character
   while start < s.length() {
     let code_unit = s[start]
@@ -102,7 +100,7 @@ pub fn trim_string(s : String) -> String {
     }
     start = start + 1
   }
-  
+
   // Find last non-whitespace character
   while end > start {
     let code_unit = s[end - 1]
@@ -111,7 +109,6 @@ pub fn trim_string(s : String) -> String {
     }
     end = end - 1
   }
-  
   if start >= end {
     ""
   } else {
@@ -131,10 +128,8 @@ pub fn is_numeric_string(s : String) -> Bool {
   if s.is_empty() {
     return false
   }
-  
   let mut has_decimal = false
   let mut has_digit = false
-  
   for i = 0; i < s.length(); i = i + 1 {
     let code_unit = s[i]
     match code_unit {
@@ -142,15 +137,14 @@ pub fn is_numeric_string(s : String) -> Bool {
       43 | 45 => if i != 0 { return false } // '+' or '-' signs only at start
       46 => { // '.'
         if has_decimal {
-          return false  // Only one decimal point allowed
+          return false // Only one decimal point allowed
         }
         has_decimal = true
       }
       32 => if i != 0 && i != s.length() - 1 { return false } // ' ' spaces only at ends
-      _ => return false  // Invalid character
+      _ => return false // Invalid character
     }
   }
-  
   has_digit
 }
 
@@ -159,7 +153,6 @@ pub fn is_numeric_string(s : String) -> Bool {
 pub fn split_string(s : String, delimiter : Char) -> Array[String] {
   let result : Array[String] = []
   let mut current = ""
-  
   for i = 0; i < s.length(); i = i + 1 {
     let code_unit = s[i]
     if code_unit == delimiter.to_int() {
@@ -170,7 +163,7 @@ pub fn split_string(s : String, delimiter : Char) -> Array[String] {
       current = current + char.to_string()
     }
   }
-  
+
   // Add the last part
   result.push(current)
   result
@@ -182,7 +175,6 @@ pub fn join_strings(strings : Array[String], delimiter : String) -> String {
   if strings.is_empty() {
     return ""
   }
-  
   let mut result = strings[0]
   for i = 1; i < strings.length(); i = i + 1 {
     result = result + delimiter + strings[i]
@@ -196,7 +188,6 @@ pub fn starts_with(s : String, prefix : String) -> Bool {
   if prefix.length() > s.length() {
     return false
   }
-  
   for i = 0; i < prefix.length(); i = i + 1 {
     if s[i] != prefix[i] {
       return false
@@ -211,7 +202,6 @@ pub fn ends_with(s : String, suffix : String) -> Bool {
   if suffix.length() > s.length() {
     return false
   }
-  
   let start = s.length() - suffix.length()
   for i = 0; i < suffix.length(); i = i + 1 {
     if s[start + i] != suffix[i] {
@@ -261,13 +251,11 @@ pub fn replace_string(s : String, from : String, to : String) -> String {
   if from.is_empty() || s.length() < from.length() {
     return s
   }
-  
   let mut result = ""
   let mut i = 0
-  
   while i <= s.length() - from.length() {
     let mut match_found = true
-    
+
     // Check if substring matches at position i
     for j = 0; j < from.length(); j = j + 1 {
       if s[i + j] != from[j] {
@@ -275,7 +263,6 @@ pub fn replace_string(s : String, from : String, to : String) -> String {
         break
       }
     }
-    
     if match_found {
       result = result + to
       i = i + from.length()
@@ -285,13 +272,12 @@ pub fn replace_string(s : String, from : String, to : String) -> String {
       i = i + 1
     }
   }
-  
+
   // Add remaining characters
   while i < s.length() {
     let char = s[i].unsafe_to_char()
     result = result + char.to_string()
     i = i + 1
   }
-  
   result
 }
