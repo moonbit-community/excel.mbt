@@ -625,3 +625,240 @@ pub fn DataRef::as_f64(self : DataRef) -> Double? {
     _ => None
   }
 }
+
+///|
+/// A trait to represent all different data types that can appear as
+/// a value in a worksheet cell
+/// 
+/// This trait provides a common interface for both Data and DataRef types,
+/// allowing generic operations on cell values regardless of their storage type.
+pub trait DataType {
+  /// Assess if datatype is empty
+  is_empty(Self) -> Bool
+
+  /// Assess if datatype is an integer
+  is_int(Self) -> Bool
+
+  /// Assess if datatype is a float
+  is_float(Self) -> Bool
+
+  /// Assess if datatype is a bool
+  is_bool(Self) -> Bool
+
+  /// Assess if datatype is a string
+  is_string(Self) -> Bool
+
+  /// Assess if datatype is a CellErrorType
+  is_error(Self) -> Bool
+
+  /// Assess if datatype is a datetime
+  is_datetime(Self) -> Bool
+
+  /// Assess if datatype is an ISO8601 datetime  
+  is_datetime_iso(Self) -> Bool
+
+  /// Assess if datatype is an ISO8601 duration
+  is_duration_iso(Self) -> Bool
+
+  /// Try getting int value
+  get_int(Self) -> Int64?
+
+  /// Try getting float value
+  get_float(Self) -> Double?
+
+  /// Try getting bool value
+  get_bool(Self) -> Bool?
+
+  /// Try getting string value
+  get_string(Self) -> String?
+
+  /// Try getting datetime value
+  get_datetime(Self) -> ExcelDateTime?
+
+  /// Try getting datetime ISO8601 value
+  get_datetime_iso(Self) -> String?
+
+  /// Try getting duration ISO8601 value
+  get_duration_iso(Self) -> String?
+
+  /// Try getting Error value
+  get_error(Self) -> CellErrorType?
+
+  /// Try converting data type into a string
+  as_string(Self) -> String?
+
+  /// Try converting data type into an int
+  as_i64(Self) -> Int64?
+
+  /// Try converting data type into a float
+  as_f64(Self) -> Double?
+}
+
+///|
+/// Implementation of DataType trait for Data
+impl DataType for Data with is_empty(self) { self.is_empty() }
+
+///|
+impl DataType for Data with is_int(self) { self.is_int() }
+
+///|
+impl DataType for Data with is_float(self) { self.is_float() }
+
+///|
+impl DataType for Data with is_bool(self) { self.is_bool() }
+
+///|
+impl DataType for Data with is_string(self) { self.is_string() }
+
+///|
+impl DataType for Data with is_error(self) { self.is_error() }
+
+///|
+impl DataType for Data with is_datetime(self) { self.is_datetime() }
+
+///|
+impl DataType for Data with is_datetime_iso(self) { self.is_datetime_iso() }
+
+///|
+impl DataType for Data with is_duration_iso(self) { self.is_duration_iso() }
+
+///|
+impl DataType for Data with get_int(self) { self.get_int() }
+
+///|
+impl DataType for Data with get_float(self) { self.get_float() }
+
+///|
+impl DataType for Data with get_bool(self) { self.get_bool() }
+
+///|
+impl DataType for Data with get_string(self) { self.get_string() }
+
+///|
+impl DataType for Data with get_datetime(self) { self.get_datetime() }
+
+///|
+impl DataType for Data with get_datetime_iso(self) { self.get_datetime_iso() }
+
+///|
+impl DataType for Data with get_duration_iso(self) { self.get_duration_iso() }
+
+///|
+impl DataType for Data with get_error(self) { self.get_error() }
+
+///|
+impl DataType for Data with as_string(self) { self.as_string() }
+
+///|
+impl DataType for Data with as_i64(self) { self.as_i64() }
+
+///|
+impl DataType for Data with as_f64(self) { self.as_f64() }
+
+///|
+/// Implementation of DataType trait for DataRef
+impl DataType for DataRef with is_empty(self) { self.is_empty() }
+
+///|
+impl DataType for DataRef with is_int(self) { self.is_int() }
+
+///|
+impl DataType for DataRef with is_float(self) { self.is_float() }
+
+///|
+impl DataType for DataRef with is_bool(self) { self.is_bool() }
+
+///|
+impl DataType for DataRef with is_string(self) { self.is_string() }
+
+///|
+impl DataType for DataRef with is_error(self) { self.is_error() }
+
+///|
+impl DataType for DataRef with is_datetime(self) { self.is_datetime() }
+
+///|
+impl DataType for DataRef with is_datetime_iso(self) { self.is_datetime_iso() }
+
+///|
+impl DataType for DataRef with is_duration_iso(self) { self.is_duration_iso() }
+
+///|
+impl DataType for DataRef with get_int(self) { self.get_int() }
+
+///|
+impl DataType for DataRef with get_float(self) { self.get_float() }
+
+///|
+impl DataType for DataRef with get_bool(self) { self.get_bool() }
+
+///|
+impl DataType for DataRef with get_string(self) { self.get_string() }
+
+///|
+impl DataType for DataRef with get_datetime(self) { self.get_datetime() }
+
+///|
+impl DataType for DataRef with get_datetime_iso(self) { self.get_datetime_iso() }
+
+///|
+impl DataType for DataRef with get_duration_iso(self) { self.get_duration_iso() }
+
+///|
+impl DataType for DataRef with get_error(self) { self.get_error() }
+
+///|
+impl DataType for DataRef with as_string(self) { self.as_string() }
+
+///|
+impl DataType for DataRef with as_i64(self) { self.as_i64() }
+
+///|
+impl DataType for DataRef with as_f64(self) { self.as_f64() }
+
+///|
+/// Generic functions that work with any DataType
+pub fn[T : DataType] is_numeric(value : T) -> Bool {
+  value.is_int() || value.is_float()
+}
+
+///|
+/// Check if a DataType represents a text value
+pub fn[T : DataType] is_text(value : T) -> Bool {
+  value.is_string()
+}
+
+///|
+/// Check if a DataType represents any kind of datetime
+pub fn[T : DataType] is_any_datetime(value : T) -> Bool {
+  value.is_datetime() || value.is_datetime_iso() || value.is_duration_iso()
+}
+
+///|
+/// Try to get a numeric value as Double from any DataType
+pub fn[T : DataType] as_numeric(value : T) -> Double? {
+  if value.is_float() {
+    value.as_f64()
+  } else if value.is_int() {
+    value.as_i64().map(fn(i) { i.to_double() })
+  } else {
+    None
+  }
+}
+
+///|
+/// Convert DataRef to Data
+pub fn DataRef::to_data(self : DataRef) -> Data {
+  match self {
+    Int(v) => Data::Int(v)
+    Float(v) => Data::Float(v)
+    String(v) => Data::String(v)
+    SharedString(v) => Data::String(v)
+    Bool(v) => Data::Bool(v)
+    DateTime(v) => Data::DateTime(v)
+    DateTimeIso(v) => Data::DateTimeIso(v)
+    DurationIso(v) => Data::DurationIso(v)
+    Error(v) => Data::Error(v)
+    Empty => Data::Empty
+  }
+}
