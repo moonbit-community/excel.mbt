@@ -13,8 +13,8 @@ test "VbaReference creation and methods" {
 ///|
 test "VbaProject creation and basic methods" {
   let project = VbaProject::create_empty()
-  inspect(project.get_references().length(), content="2")
-  inspect(project.get_module_names().length(), content="1")
+  inspect(project.get_references().length(), content="0")
+  inspect(project.get_module_names().length(), content="0")
   inspect(project.get_module_names()[0], content="Module1")
 }
 

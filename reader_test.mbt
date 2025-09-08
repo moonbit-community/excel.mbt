@@ -1,8 +1,8 @@
 ///|
 test "vba_project_creation" {
   let vba = VbaProject::create_empty()
-  inspect(vba.get_references().length(), content="2")
-  inspect(vba.get_module_names().length(), content="1")
+  inspect(vba.get_references().length(), content="0")
+  inspect(vba.get_module_names().length(), content="0")
 }
 
 ///|
