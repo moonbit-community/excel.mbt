@@ -1,6 +1,6 @@
 ///|
 /// A struct to handle any error and a message
-pub(all) enum CalamineError {
+pub(all) suberror CalamineError {
   /// IO error
   Io(String)
   /// Ods specific error
@@ -17,11 +17,11 @@ pub(all) enum CalamineError {
   De(DeError)
   /// General error message
   Msg(String)
-} derive(Show, Eq)
+} derive(Show)
 
 ///|
 /// An enum for ODS specific errors.
-pub(all) enum OdsError {
+pub(all) suberror OdsError {
   /// A wrapper for IO errors
   Io(String)
   /// A wrapper for XML parsing errors
@@ -42,11 +42,11 @@ pub(all) enum OdsError {
   CellError(String)
   /// Unexpected node in XML
   UnexpectedNode(String)
-} derive(Show, Eq)
+} derive(Show)
 
 ///|
 /// An enum for XLS specific errors.
-pub(all) enum XlsError {
+pub(all) suberror XlsError {
   /// A wrapper for IO errors
   Io(String)
   /// Invalid BOM
@@ -63,11 +63,11 @@ pub(all) enum XlsError {
   Dimensions(String)
   /// General XLS error
   General(String)
-} derive(Show, Eq)
+} derive(Show)
 
 ///|
 /// An enum for XLSB specific errors.
-pub(all) enum XlsbError {
+pub(all) suberror XlsbError {
   /// A wrapper for IO errors
   Io(String)
   /// A wrapper for ZIP errors
@@ -92,7 +92,7 @@ pub(all) enum XlsbError {
 
 ///|
 /// An enum for XLSX specific errors.
-pub(all) enum XlsxError {
+pub(all) suberror XlsxError {
   /// A wrapper for IO errors
   Io(String)
   /// A wrapper for ZIP errors
@@ -149,7 +149,7 @@ pub(all) enum XlsxError {
 
 ///|
 /// An enum for VBA specific errors.
-pub(all) enum VbaError {
+pub(all) suberror VbaError {
   /// A wrapper for IO errors
   Io(String)
   /// Invalid directory entry
@@ -162,7 +162,7 @@ pub(all) enum VbaError {
 
 ///|
 /// An enum for deserialization errors.
-pub(all) enum DeError {
+pub(all) suberror DeError {
   /// Missing header
   MissingHeader(String)
   /// Unknown header
