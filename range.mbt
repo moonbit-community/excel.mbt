@@ -26,6 +26,30 @@ pub fn[T] Cell::get_value(self : Cell[T]) -> T {
 }
 
 ///|
+/// Gets Cell value as a reference.
+pub fn[T] Cell::get_value_ref(self : Cell[T]) -> T {
+  self.val
+}
+
+///|
+/// Sets Cell value (creates new Cell with updated value).
+pub fn[T] Cell::set_value(self : Cell[T], new_value : T) -> Cell[T] {
+  { ..self, val: new_value }
+}
+
+///|
+/// Gets the row number of the cell (zero-indexed).
+pub fn[T] Cell::get_row(self : Cell[T]) -> UInt {
+  self.pos.0
+}
+
+///|
+/// Gets the column number of the cell (zero-indexed).
+pub fn[T] Cell::get_column(self : Cell[T]) -> UInt {
+  self.pos.1
+}
+
+///|
 /// A struct which represents an area of cells and the data within it.
 pub(all) struct Range[T] {
   start : (UInt, UInt)
@@ -108,6 +132,54 @@ pub fn[T] Range::is_empty(self : Range[T]) -> Bool {
 }
 
 ///|
+/// Get the total number of cells in the range.
+pub fn[T] Range::cell_count(self : Range[T]) -> UInt {
+  self.width() * self.height()
+}
+
+///|
+/// Get a value at an absolute position in a Range.
+pub fn[T] Range::get_value(
+  self : Range[T],
+  absolute_position : (UInt, UInt),
+) -> T? {
+  let (row, col) = absolute_position
+  if row >= self.start.0 &&
+    row <= self.end.0 &&
+    col >= self.start.1 &&
+    col <= self.end.1 {
+    let relative_row = row - self.start.0
+    let relative_col = col - self.start.1
+    let index = relative_row * self.width() + relative_col
+    self.inner.get(index.reinterpret_as_int())
+  } else {
+    None
+  }
+}
+
+///|
+/// Get a value at a relative position in a Range.
+pub fn[T] Range::get(self : Range[T], relative_position : (UInt, UInt)) -> T? {
+  let (row, col) = relative_position
+  let (height, width) = self.get_size()
+  if col >= width || row >= height {
+    None
+  } else {
+    let index = row * width + col
+    self.inner.get(index.reinterpret_as_int())
+  }
+}
+
+///|
+/// Check if a position is within the range bounds.
+pub fn[T] Range::contains(self : Range[T], row : UInt, col : UInt) -> Bool {
+  row >= self.start.0 &&
+  row <= self.end.0 &&
+  col >= self.start.1 &&
+  col <= self.end.1
+}
+
+///|
 /// Creates a Range from a sparse vector of cells.
 pub fn[T : Default] Range::from_sparse(cells : Array[Cell[T]]) -> Range[T] {
   if cells.is_empty() {
@@ -171,46 +243,6 @@ pub fn[T] Range::set_value(
     let idx = (pos.0 * self.width() + pos.1).reinterpret_as_int()
     if idx >= 0 && idx < self.inner.length() {
       self.inner[idx] = value
-    }
-  }
-}
-
-///|
-/// Get a value at an absolute position in a Range.
-pub fn[T] Range::get_value(
-  self : Range[T],
-  absolute_position : (UInt, UInt),
-) -> T? {
-  let p = absolute_position
-  if p.0 >= self.start.0 &&
-    p.0 <= self.end.0 &&
-    p.1 >= self.start.1 &&
-    p.1 <= self.end.1 {
-    let relative_pos = (
-      (p.0 - self.start.0).reinterpret_as_int(),
-      (p.1 - self.start.1).reinterpret_as_int(),
-    )
-    return self.get(relative_pos)
-  }
-  None
-}
-
-///|
-/// Get a value at a relative position in a Range.
-pub fn[T] Range::get(self : Range[T], relative_position : (Int, Int)) -> T? {
-  let (row, col) = relative_position
-  let (height, width) = self.get_size()
-  if col.reinterpret_as_uint() >= width ||
-    row.reinterpret_as_uint() >= height ||
-    row < 0 ||
-    col < 0 {
-    None
-  } else {
-    let idx = row * width.reinterpret_as_int() + col
-    if idx >= 0 && idx < self.inner.length() {
-      Some(self.inner[idx])
-    } else {
-      None
     }
   }
 }
