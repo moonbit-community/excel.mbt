@@ -1,3 +1,4 @@
+//|
 ///|
 /// A struct to hold a cell position and value.
 pub(all) struct Cell[T] {
@@ -512,4 +513,152 @@ pub fn[T : Show] Range::headers(self : Range[T]) -> Array[String]? {
   } else {
     None
   }
+}
+
+///|
+/// Get the length (total number of cells) in the range.
+pub fn[T] Range::len(self : Range[T]) -> UInt64 {
+  if self.is_empty() {
+    0UL
+  } else {
+    let height = (self.end.0 - self.start.0 + 1U).to_uint64()
+    let width = (self.end.1 - self.start.1 + 1U).to_uint64()
+    height * width
+  }
+}
+
+///|
+/// Get the absolute position for a relative position within the range.
+pub fn[T] Range::absolute_position(
+  self : Range[T],
+  relative_position : (UInt, UInt),
+) -> (UInt, UInt)? {
+  let (rel_row, rel_col) = relative_position
+  if rel_row < self.height() && rel_col < self.width() {
+    Some((self.start.0 + rel_row, self.start.1 + rel_col))
+  } else {
+    None
+  }
+}
+
+///|
+/// Get the relative position for an absolute position.
+pub fn[T] Range::relative_position(
+  self : Range[T],
+  absolute_position : (UInt, UInt),
+) -> (UInt, UInt)? {
+  let (abs_row, abs_col) = absolute_position
+  if self.contains(abs_row, abs_col) {
+    Some((abs_row - self.start.0, abs_col - self.start.1))
+  } else {
+    None
+  }
+}
+
+///|
+/// Get an iterator over columns of a Range.
+/// Returns an Array where each element is an Array representing a column.
+pub fn[T] Range::columns(self : Range[T]) -> Array[Array[T]] {
+  if self.is_empty() {
+    return []
+  }
+  let columns = []
+  let width = self.width()
+  let height = self.height()
+  for col = 0U; col < width; col = col + 1U {
+    let column_data = []
+    for row = 0U; row < height; row = row + 1U {
+      let index = (row * width + col).reinterpret_as_int()
+      if index < self.inner.length() {
+        column_data.push(self.inner[index])
+      }
+    }
+    columns.push(column_data)
+  }
+  columns
+}
+
+///|
+/// Get a specific column from the Range.
+pub fn[T] Range::get_column(self : Range[T], col_index : UInt) -> Array[T]? {
+  if col_index >= self.width() {
+    return None
+  }
+  let column_data = []
+  let width = self.width()
+  let height = self.height()
+  for row = 0U; row < height; row = row + 1U {
+    let index = (row * width + col_index).reinterpret_as_int()
+    if index < self.inner.length() {
+      column_data.push(self.inner[index])
+    }
+  }
+  Some(column_data)
+}
+
+///|
+/// Check if the range contains any data (has non-default values).
+pub fn[T : Default + Eq] Range::has_data(self : Range[T]) -> Bool {
+  let default_val = T::default()
+  for value in self.inner {
+    if value != default_val {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Get the dimensions as a Dimensions struct.
+pub fn[T] Range::dimensions(self : Range[T]) -> Dimensions {
+  if self.is_empty() {
+    Dimensions::new((0U, 0U), (0U, 0U))
+  } else {
+    Dimensions::new(self.start, self.end)
+  }
+}
+
+///|
+/// Create a Range that covers both ranges (union of bounds).
+pub fn[T : Default] Range::extend_to_include(
+  self : Range[T],
+  other : Range[T],
+) -> Range[T] {
+  if self.is_empty() {
+    return other
+  }
+  if other.is_empty() {
+    return self
+  }
+  let new_start = (
+    if self.start.0 < other.start.0 {
+      self.start.0
+    } else {
+      other.start.0
+    },
+    if self.start.1 < other.start.1 {
+      self.start.1
+    } else {
+      other.start.1
+    },
+  )
+  let new_end = (
+    if self.end.0 > other.end.0 {
+      self.end.0
+    } else {
+      other.end.0
+    },
+    if self.end.1 > other.end.1 {
+      self.end.1
+    } else {
+      other.end.1
+    },
+  )
+  Range::new(new_start, new_end)
+}
+
+///|
+/// Clone the range (creates a new Range with copied data).
+pub fn[T] Range::clone(self : Range[T]) -> Range[T] {
+  { start: self.start, end: self.end, inner: self.inner.copy() }
 }
