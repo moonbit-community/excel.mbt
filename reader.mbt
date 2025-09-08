@@ -56,6 +56,9 @@ pub trait ReaderRef: Reader {
 
   /// Get the nth worksheet range where shared string values are only borrowed.
   worksheet_range_at_ref(Self, Int) -> Range[DataRef]? raise CalamineError
+
+  /// Get table by name where shared string values are only borrowed.
+  table_by_name_ref(Self, String) -> Table[DataRef]? raise CalamineError
 }
 
 ///|
@@ -156,6 +159,48 @@ impl Reader for XlsbReader with table_names_in_sheet(self, sheet_name) {
 }
 
 ///|
+/// XlsbReader implements ReaderRef for efficient reference-based data access  
+impl ReaderRef for XlsbReader with worksheet_range_ref(self, name) {
+  // For now, convert Data to DataRef - real implementation would avoid copying strings
+  let data_range = self.worksheet_range(name)
+  let cells = data_range
+    .cells()
+    .map(fn(cell) {
+      let (row, col, data) = cell
+      let data_ref = match data {
+        String(s) => SharedString(s)
+        Int(i) => Int(i)
+        Float(f) => Float(f)
+        Bool(b) => Bool(b)
+        DateTime(dt) => DateTime(dt)
+        DateTimeIso(s) => DateTimeIso(s)
+        DurationIso(s) => DurationIso(s)
+        Error(e) => Error(e)
+        Empty => Empty
+      }
+      Cell::new((row, col), data_ref)
+    })
+  Range::from_sparse(cells)
+}
+
+///|
+impl ReaderRef for XlsbReader with worksheet_range_at_ref(self, n) {
+  let sheet_names = self.sheet_names()
+  if n >= 0 && n < sheet_names.length() {
+    let name = sheet_names[n]
+    Some(self.worksheet_range_ref(name))
+  } else {
+    None
+  }
+}
+
+///|
+impl ReaderRef for XlsbReader with table_by_name_ref(self, name) {
+  // For now, return None - real implementation would return Table[DataRef]
+  None
+}
+
+///|
 impl Reader for XlsReader with load_tables(self) {
   // XLS format doesn't support tables
   return
@@ -201,6 +246,48 @@ impl Reader for XlsxReader with table_names(self) {
 impl Reader for XlsxReader with table_names_in_sheet(self, sheet_name) {
   // For now, return empty array - real implementation would return table names in sheet
   []
+}
+
+///|
+/// XlsxReader implements ReaderRef for efficient reference-based data access
+impl ReaderRef for XlsxReader with worksheet_range_ref(self, name) {
+  // For now, convert Data to DataRef - real implementation would avoid copying strings
+  let data_range = self.worksheet_range(name)
+  let cells = data_range
+    .cells()
+    .map(fn(cell) {
+      let (row, col, data) = cell
+      let data_ref = match data {
+        String(s) => SharedString(s)
+        Int(i) => Int(i)
+        Float(f) => Float(f)
+        Bool(b) => Bool(b)
+        DateTime(dt) => DateTime(dt)
+        DateTimeIso(s) => DateTimeIso(s)
+        DurationIso(s) => DurationIso(s)
+        Error(e) => Error(e)
+        Empty => Empty
+      }
+      Cell::new((row, col), data_ref)
+    })
+  Range::from_sparse(cells)
+}
+
+///|
+impl ReaderRef for XlsxReader with worksheet_range_at_ref(self, n) {
+  let sheet_names = self.sheet_names()
+  if n >= 0 && n < sheet_names.length() {
+    let name = sheet_names[n]
+    Some(self.worksheet_range_ref(name))
+  } else {
+    None
+  }
+}
+
+///|
+impl ReaderRef for XlsxReader with table_by_name_ref(self, name) {
+  // For now, return None - real implementation would return Table[DataRef]
+  None
 }
 
 ///|
