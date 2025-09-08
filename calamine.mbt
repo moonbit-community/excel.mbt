@@ -691,130 +691,360 @@ pub trait DataType {
 
 ///|
 /// Implementation of DataType trait for Data
-impl DataType for Data with is_empty(self) { self.is_empty() }
+impl DataType for Data with is_empty(self) {
+  self.is_empty()
+}
 
 ///|
-impl DataType for Data with is_int(self) { self.is_int() }
+impl DataType for Data with is_int(self) {
+  self.is_int()
+}
 
 ///|
-impl DataType for Data with is_float(self) { self.is_float() }
+impl DataType for Data with is_float(self) {
+  self.is_float()
+}
 
 ///|
-impl DataType for Data with is_bool(self) { self.is_bool() }
+impl DataType for Data with is_bool(self) {
+  self.is_bool()
+}
 
 ///|
-impl DataType for Data with is_string(self) { self.is_string() }
+impl DataType for Data with is_string(self) {
+  self.is_string()
+}
 
 ///|
-impl DataType for Data with is_error(self) { self.is_error() }
+impl DataType for Data with is_error(self) {
+  self.is_error()
+}
 
 ///|
-impl DataType for Data with is_datetime(self) { self.is_datetime() }
+impl DataType for Data with is_datetime(self) {
+  self.is_datetime()
+}
 
 ///|
-impl DataType for Data with is_datetime_iso(self) { self.is_datetime_iso() }
+impl DataType for Data with is_datetime_iso(self) {
+  self.is_datetime_iso()
+}
 
 ///|
-impl DataType for Data with is_duration_iso(self) { self.is_duration_iso() }
+impl DataType for Data with is_duration_iso(self) {
+  self.is_duration_iso()
+}
 
 ///|
-impl DataType for Data with get_int(self) { self.get_int() }
+impl DataType for Data with get_int(self) {
+  self.get_int()
+}
 
 ///|
-impl DataType for Data with get_float(self) { self.get_float() }
+impl DataType for Data with get_float(self) {
+  self.get_float()
+}
 
 ///|
-impl DataType for Data with get_bool(self) { self.get_bool() }
+impl DataType for Data with get_bool(self) {
+  self.get_bool()
+}
 
 ///|
-impl DataType for Data with get_string(self) { self.get_string() }
+impl DataType for Data with get_string(self) {
+  self.get_string()
+}
 
 ///|
-impl DataType for Data with get_datetime(self) { self.get_datetime() }
+impl DataType for Data with get_datetime(self) {
+  self.get_datetime()
+}
 
 ///|
-impl DataType for Data with get_datetime_iso(self) { self.get_datetime_iso() }
+impl DataType for Data with get_datetime_iso(self) {
+  self.get_datetime_iso()
+}
 
 ///|
-impl DataType for Data with get_duration_iso(self) { self.get_duration_iso() }
+impl DataType for Data with get_duration_iso(self) {
+  self.get_duration_iso()
+}
 
 ///|
-impl DataType for Data with get_error(self) { self.get_error() }
+impl DataType for Data with get_error(self) {
+  self.get_error()
+}
 
 ///|
-impl DataType for Data with as_string(self) { self.as_string() }
+impl DataType for Data with as_string(self) {
+  self.as_string()
+}
 
 ///|
-impl DataType for Data with as_i64(self) { self.as_i64() }
+impl DataType for Data with as_i64(self) {
+  self.as_i64()
+}
 
 ///|
-impl DataType for Data with as_f64(self) { self.as_f64() }
+impl DataType for Data with as_f64(self) {
+  self.as_f64()
+}
 
 ///|
 /// Implementation of DataType trait for DataRef
-impl DataType for DataRef with is_empty(self) { self.is_empty() }
+impl DataType for DataRef with is_empty(self) {
+  self.is_empty()
+}
 
 ///|
-impl DataType for DataRef with is_int(self) { self.is_int() }
+impl DataType for DataRef with is_int(self) {
+  self.is_int()
+}
 
 ///|
-impl DataType for DataRef with is_float(self) { self.is_float() }
+impl DataType for DataRef with is_float(self) {
+  self.is_float()
+}
 
 ///|
-impl DataType for DataRef with is_bool(self) { self.is_bool() }
+impl DataType for DataRef with is_bool(self) {
+  self.is_bool()
+}
 
 ///|
-impl DataType for DataRef with is_string(self) { self.is_string() }
+impl DataType for DataRef with is_string(self) {
+  self.is_string()
+}
 
 ///|
-impl DataType for DataRef with is_error(self) { self.is_error() }
+impl DataType for DataRef with is_error(self) {
+  self.is_error()
+}
 
 ///|
-impl DataType for DataRef with is_datetime(self) { self.is_datetime() }
+impl DataType for DataRef with is_datetime(self) {
+  self.is_datetime()
+}
 
 ///|
-impl DataType for DataRef with is_datetime_iso(self) { self.is_datetime_iso() }
+impl DataType for DataRef with is_datetime_iso(self) {
+  self.is_datetime_iso()
+}
 
 ///|
-impl DataType for DataRef with is_duration_iso(self) { self.is_duration_iso() }
+impl DataType for DataRef with is_duration_iso(self) {
+  self.is_duration_iso()
+}
 
 ///|
-impl DataType for DataRef with get_int(self) { self.get_int() }
+impl DataType for DataRef with get_int(self) {
+  self.get_int()
+}
 
 ///|
-impl DataType for DataRef with get_float(self) { self.get_float() }
+impl DataType for DataRef with get_float(self) {
+  self.get_float()
+}
 
 ///|
-impl DataType for DataRef with get_bool(self) { self.get_bool() }
+impl DataType for DataRef with get_bool(self) {
+  self.get_bool()
+}
 
 ///|
-impl DataType for DataRef with get_string(self) { self.get_string() }
+impl DataType for DataRef with get_string(self) {
+  self.get_string()
+}
 
 ///|
-impl DataType for DataRef with get_datetime(self) { self.get_datetime() }
+impl DataType for DataRef with get_datetime(self) {
+  self.get_datetime()
+}
 
 ///|
-impl DataType for DataRef with get_datetime_iso(self) { self.get_datetime_iso() }
+impl DataType for DataRef with get_datetime_iso(self) {
+  self.get_datetime_iso()
+}
 
 ///|
-impl DataType for DataRef with get_duration_iso(self) { self.get_duration_iso() }
+impl DataType for DataRef with get_duration_iso(self) {
+  self.get_duration_iso()
+}
 
 ///|
-impl DataType for DataRef with get_error(self) { self.get_error() }
+impl DataType for DataRef with get_error(self) {
+  self.get_error()
+}
 
 ///|
-impl DataType for DataRef with as_string(self) { self.as_string() }
+impl DataType for DataRef with as_string(self) {
+  self.as_string()
+}
 
 ///|
-impl DataType for DataRef with as_i64(self) { self.as_i64() }
+impl DataType for DataRef with as_i64(self) {
+  self.as_i64()
+}
 
 ///|
-impl DataType for DataRef with as_f64(self) { self.as_f64() }
+impl DataType for DataRef with as_f64(self) {
+  self.as_f64()
+}
 
 ///|
-/// Generic functions that work with any DataType
-pub fn[T : DataType] is_numeric(value : T) -> Bool {
-  value.is_int() || value.is_float()
+/// Convert DataRef to Option types for safe extraction
+pub fn DataRef::to_option_bool(self : DataRef) -> Bool? {
+  self.get_bool()
+}
+
+///|
+/// Default implementation for Data type
+impl Default for Data with default() {
+  Data::Empty
+}
+
+///|
+/// Default implementation for DataRef type  
+impl Default for DataRef with default() {
+  DataRef::Empty
+}
+
+///|
+/// Convert iterator of Data values to array
+pub fn[T] iter_to_array(iter : Array[T]) -> Array[T] {
+  iter
+}
+
+///|
+/// Helper function to create a Range from an array of arrays (2D data)
+pub fn[T : Default] Range::from_2d_array(
+  data : Array[Array[T]],
+  start_row : UInt,
+  start_col : UInt,
+) -> Range[T] {
+  if data.is_empty() {
+    return Range::empty()
+  }
+  let height = data.length().reinterpret_as_uint()
+  let width = data[0].length().reinterpret_as_uint()
+  let end_row = start_row + height - 1U
+  let end_col = start_col + width - 1U
+  let range = Range::new((start_row, start_col), (end_row, end_col))
+  for r = 0; r < data.length(); r = r + 1 {
+    let row = data[r]
+    for c = 0; c < row.length(); c = c + 1 {
+      let row_pos = start_row + r.reinterpret_as_uint()
+      let col_pos = start_col + c.reinterpret_as_uint()
+      range.set_value((row_pos, col_pos), row[c])
+    }
+  }
+  range
+}
+
+///|
+/// Helper function to convert Range to 2D array
+pub fn[T] Range::to_2d_array(self : Range[T]) -> Array[Array[T]] {
+  let rows = self.rows()
+  let result = []
+  for row in rows {
+    let row_array = []
+    for i = 0; i < row.length(); i = i + 1 {
+      row_array.push(row[i])
+    }
+    result.push(row_array)
+  }
+  result
+}
+
+///|
+/// Create a Range with a single value repeated
+pub fn[T : Default] Range::filled(
+  start : (UInt, UInt),
+  end : (UInt, UInt),
+  value : T,
+) -> Range[T] {
+  let range = Range::new(start, end)
+  let cells = range.cells()
+  for cell in cells {
+    let row = cell.0
+    let col = cell.1
+    range.set_cell((row, col), value)
+  }
+  range
+}
+
+///|
+/// Check if two ranges have the same dimensions
+pub fn[T, U] Range::same_dimensions(self : Range[T], other : Range[U]) -> Bool {
+  self.get_size() == other.get_size()
+}
+
+///|
+/// Transform each cell value using a function
+pub fn[T, U : Default] Range::map(self : Range[T], f : (T) -> U) -> Range[U] {
+  if self.is_empty() {
+    return Range::empty()
+  }
+  let result = Range::new(self.start, self.end)
+  let cells = self.cells()
+  for cell in cells {
+    let row = cell.0
+    let col = cell.1
+    let value = cell.2
+    result.set_cell((row, col), f(value))
+  }
+  result
+}
+
+///|
+/// Filter cells based on a predicate and return matching positions
+pub fn[T] Range::filter_positions(
+  self : Range[T],
+  predicate : (T) -> Bool,
+) -> Array[(UInt, UInt)] {
+  let result = []
+  let cells = self.cells()
+  for cell in cells {
+    let row = cell.0
+    let col = cell.1
+    let value = cell.2
+    if predicate(value) {
+      result.push((row, col))
+    }
+  }
+  result
+}
+
+///|
+/// Count cells that match a predicate
+pub fn[T] Range::count_if(self : Range[T], predicate : (T) -> Bool) -> UInt {
+  let mut count = 0U
+  let cells = self.cells()
+  for cell in cells {
+    let value = cell.2
+    if predicate(value) {
+      count = count + 1U
+    }
+  }
+  count
+}
+
+///|
+/// Find first cell that matches a predicate
+pub fn[T] Range::find_first(
+  self : Range[T],
+  predicate : (T) -> Bool,
+) -> (UInt, UInt, T)? {
+  let cells = self.cells()
+  for cell in cells {
+    let row = cell.0
+    let col = cell.1
+    let value = cell.2
+    if predicate(value) {
+      return Some((row, col, value))
+    }
+  }
+  None
 }
 
 ///|
