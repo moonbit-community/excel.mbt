@@ -1,10 +1,10 @@
-# MoonBit Calamine Library
+# MoonBit Excel Library
 
 A pure MoonBit library for reading Excel and OpenDocument Spreadsheet files.
 
 ## Overview
 
-Calamine is a comprehensive spreadsheet reader library that supports multiple formats:
+Excel.mbt is a comprehensive spreadsheet reader library that supports multiple formats:
 - **XLSX** - Excel 2007+ format
 - **XLS** - Excel 2003 format  
 - **XLSB** - Excel Binary format
@@ -25,7 +25,7 @@ Calamine is a comprehensive spreadsheet reader library that supports multiple fo
 
 ### Data Types
 
-Calamine provides comprehensive data types for representing Excel cell values:
+Excel.mbt provides comprehensive data types for representing Excel cell values:
 
 ```moonbit
 test "data_types_example" {
@@ -145,7 +145,7 @@ test "error_handling_example" {
 
 ### Error Types
 
-- **`CalamineError`** - General error type encompassing all format-specific errors
+- **`Excel.mbtError`** - General error type encompassing all format-specific errors
 - **`XlsxError`** - Specific to Excel 2007+ format issues
 - **`XlsError`** - Specific to Excel 2003 format issues  
 - **`XlsbError`** - Specific to Excel Binary format issues
@@ -229,7 +229,7 @@ This library is actively being developed. Contributions are welcome!
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd calamine
+cd Excel.mbt
 
 # Run tests
 moon test
@@ -254,4 +254,4 @@ Licensed under the Apache License, Version 2.0.
 
 ## Acknowledgments
 
-This library is inspired by and maintains compatibility with the Rust calamine library while providing a pure MoonBit implementation optimized for the MoonBit ecosystem.
+This library is inspired by and maintains compatibility with the Rust Excel.mbt library while providing a pure MoonBit implementation optimized for the MoonBit ecosystem.
