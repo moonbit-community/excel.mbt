@@ -159,37 +159,95 @@ pub fn ExcelDateTime::as_f64(self : ExcelDateTime) -> Double {
 }
 
 ///|
-/// Convert Excel datetime to date string representation
+/// Constants for Excel date/time conversions
+const EXCEL_EPOCH_DAYS : Double = 25569.0 // Days from Excel epoch (1900-01-01) to Unix epoch (1970-01-01)
+
+///|
+const EXCEL_1900_1904_DIFF : Double = 1462.0 // Difference between 1900 and 1904 date systems
+
+///|
+const MS_PER_DAY : Double = 86400000.0 // Milliseconds per day (24 * 60 * 60 * 1000)
+
+///|
+/// Convert Excel datetime to date string representation (ISO format YYYY-MM-DD)
 pub fn ExcelDateTime::as_date(self : ExcelDateTime) -> String {
-  // Simplified date conversion - returns ISO format date
-  // In a full implementation, this would properly convert Excel serial dates
-  "1900-01-01" // placeholder for now
+  let adjusted_value = if self.is_1904 {
+    self.value + EXCEL_1900_1904_DIFF
+  } else {
+    self.value
+  }
+
+  // Excel epoch starts at 1900-01-01, but has a bug treating 1900 as leap year
+  // Values >= 60 need adjustment for the leap year bug
+  let final_value = if adjusted_value >= 60.0 {
+    adjusted_value
+  } else {
+    adjusted_value + 1.0
+  }
+
+  // Convert to Unix timestamp then to date
+  let unix_days = final_value - EXCEL_EPOCH_DAYS
+  let unix_timestamp_ms = unix_days * MS_PER_DAY
+
+  // For now, return a simple formatted date
+  // In a full implementation, this would use proper date libraries
+  if unix_timestamp_ms >= 0.0 {
+    let days_since_unix = unix_timestamp_ms / MS_PER_DAY
+    let year = 1970 + (days_since_unix / 365.25).to_int()
+    let remaining_days = (days_since_unix % 365.25).to_int().to_double()
+    let month = (remaining_days / 30.4).to_int() + 1
+    let day = (remaining_days % 30.4).to_int() + 1
+    let month_str = if month < 10 { "0\{month}" } else { "\{month}" }
+    let day_str = if day < 10 { "0\{day}" } else { "\{day}" }
+    "\{year}-\{month_str}-\{day_str}"
+  } else {
+    "1900-01-01"
+  }
 }
 
 ///|
-/// Convert Excel datetime to time string representation  
+/// Convert Excel datetime to time string representation (ISO format HH:MM:SS)
 pub fn ExcelDateTime::as_time(self : ExcelDateTime) -> String {
-  // Simplified time conversion - returns ISO format time
-  // In a full implementation, this would properly convert Excel serial dates
-  "00:00:00" // placeholder for now
+  // Get the fractional part representing time of day
+  let time_fraction = self.value - self.value.floor()
+
+  // Convert to seconds
+  let total_seconds = (time_fraction * 86400.0).to_int() // 86400 seconds in a day
+  let hours = total_seconds / 3600
+  let minutes = total_seconds % 3600 / 60
+  let seconds = total_seconds % 60
+  let hours_str = if hours < 10 { "0\{hours}" } else { "\{hours}" }
+  let minutes_str = if minutes < 10 { "0\{minutes}" } else { "\{minutes}" }
+  let seconds_str = if seconds < 10 { "0\{seconds}" } else { "\{seconds}" }
+  "\{hours_str}:\{minutes_str}:\{seconds_str}"
 }
 
 ///|
-/// Convert Excel datetime to duration
+/// Convert Excel datetime to duration (ISO 8601 format)
 pub fn ExcelDateTime::as_duration(self : ExcelDateTime) -> String? {
   if self.is_duration() {
-    Some("PT0S") // placeholder duration format
+    let total_seconds = (self.value * 86400.0).to_int()
+    let hours = total_seconds / 3600
+    let minutes = total_seconds % 3600 / 60
+    let seconds = total_seconds % 60
+    if hours > 0 {
+      Some("PT\{hours}H\{minutes}M\{seconds}S")
+    } else if minutes > 0 {
+      Some("PT\{minutes}M\{seconds}S")
+    } else {
+      Some("PT\{seconds}S")
+    }
   } else {
     None
   }
 }
 
 ///|
-/// Convert Excel datetime to datetime string representation
+/// Convert Excel datetime to datetime string representation (ISO format YYYY-MM-DDTHH:MM:SS)
 pub fn ExcelDateTime::as_datetime(self : ExcelDateTime) -> String {
-  // Simplified datetime conversion - returns ISO format datetime
-  // In a full implementation, this would properly convert Excel serial dates
-  "1900-01-01T00:00:00" // placeholder for now
+  let date_part = self.as_date()
+  let time_part = self.as_time()
+  "\{date_part}T\{time_part}"
 }
 
 ///|
@@ -862,11 +920,14 @@ impl DataType for Data with as_time(self) {
   match self {
     DateTime(dt) => Some(dt.as_time())
     DateTimeIso(s) =>
-      // Try to parse ISO date string (simplified implementation)
-      if s.length() >= 10 {
-        // Extract date part (YYYY-MM-DD)
-        let date_part = s.substring(start=0, end=10)
-        Some(date_part)
+      // Try to extract time part from ISO datetime string
+      if s.contains("T") {
+        let parts = s.split("T").collect()
+        if parts.length() >= 2 {
+          Some(parts[1].to_string())
+        } else {
+          None
+        }
       } else {
         None
       }
@@ -1067,7 +1128,7 @@ impl DataType for DataRef with as_duration(self) {
     SharedString(s) => {
       // Try to parse as duration
       let str = s.to_string()
-      if str.strip_prefix("P").is_some() || str.strip_prefix("PT").is_some() {
+      if str.strip_prefix("P") is Some(_) || str.strip_prefix("PT") is Some(_) {
         Some(s)
       } else {
         None
