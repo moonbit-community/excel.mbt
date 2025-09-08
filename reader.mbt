@@ -91,9 +91,8 @@ pub fn detect_workbook_type(data : Bytes) -> WorkbookType {
 
   // Check for ZIP signature (XLSX, XLSB, ODS)
   if data[0] == 80 && data[1] == 75 && data[2] == 3 && data[3] == 4 {
-    // It's a ZIP file, need to check content
-    // For now, assume XLSX (we can improve this later)
-    Xlsx
+    // It's a ZIP file, need to check content type
+    detect_zip_based_format(data)
 
     // Check for OLE2/CFB signature (XLS)  
   } else if data[0] == 208 &&
@@ -107,6 +106,109 @@ pub fn detect_workbook_type(data : Bytes) -> WorkbookType {
     Xls
   } else {
     Unknown
+  }
+}
+
+///|
+/// Detect ZIP-based format by examining content
+fn detect_zip_based_format(data : Bytes) -> WorkbookType {
+  // Try to detect the format by looking for specific patterns or filenames
+  // This is a simplified implementation - a full implementation would parse the ZIP
+
+  // Look for typical file patterns in the data
+  let data_str = data.to_string()
+
+  // Check for ODS MIME type
+  if data_str.contains("application/vnd.oasis.opendocument.spreadsheet") {
+    return Ods
+  }
+
+  // Check for XLSX patterns
+  if data_str.contains("xl/") ||
+    data_str.contains("xl/workbook.xml") ||
+    data_str.contains("xl/worksheets/") {
+    return Xlsx
+  }
+
+  // Check for XLSB patterns
+  if data_str.contains("xl/workbook.bin") {
+    return Xlsb
+  }
+
+  // Check for ODS patterns
+  if data_str.contains("content.xml") &&
+    data_str.contains("META-INF/manifest.xml") {
+    return Ods
+  }
+
+  // Default to XLSX for unknown ZIP files (most common)
+  Xlsx
+}
+
+///|
+/// Enhanced detection with file extension hints
+pub fn detect_workbook_type_with_extension(
+  data : Bytes,
+  filename : String?,
+) -> WorkbookType {
+  // First try detection by content
+  let detected = detect_workbook_type(data)
+
+  // If we couldn't determine from content, use filename
+  if detected == Unknown {
+    match filename {
+      Some(name) => {
+        let name_lower = name // MoonBit doesn't have to_lowercase, use as-is for now
+        if name_lower.ends_with(".xlsx") is Some(_) ||
+          name_lower.ends_with(".xlsm") is Some(_) {
+          return Xlsx
+        } else if name_lower.ends_with(".xls") is Some(_) ||
+          name_lower.ends_with(".xla") is Some(_) {
+          return Xls
+        } else if name_lower.ends_with(".xlsb") is Some(_) {
+          return Xlsb
+        } else if name_lower.ends_with(".ods") is Some(_) {
+          return Ods
+        }
+        Unknown
+      }
+      None => Unknown
+    }
+  } else {
+    detected
+  }
+}
+
+///|
+/// Auto-detect and open any supported workbook format
+pub fn open_workbook_auto(data : Bytes) -> AutoWorkbook raise CalamineError {
+  match detect_workbook_type(data) {
+    Xlsx => AutoWorkbook::Xlsx(XlsxReader::new(data))
+    Xls => AutoWorkbook::Xls(XlsReader::new(data))
+    Xlsb => AutoWorkbook::Xlsb(XlsbReader::new(data))
+    Ods => AutoWorkbook::Ods(OdsReader::new(data))
+    Unknown =>
+      raise CalamineError::Msg(
+        "Unknown workbook format - unable to detect file type",
+      )
+  }
+}
+
+///|
+/// Auto-detect and open any supported workbook format with filename hint
+pub fn open_workbook_auto_with_filename(
+  data : Bytes,
+  filename : String?,
+) -> AutoWorkbook raise CalamineError {
+  match detect_workbook_type_with_extension(data, filename) {
+    Xlsx => AutoWorkbook::Xlsx(XlsxReader::new(data))
+    Xls => AutoWorkbook::Xls(XlsReader::new(data))
+    Xlsb => AutoWorkbook::Xlsb(XlsbReader::new(data))
+    Ods => AutoWorkbook::Ods(OdsReader::new(data))
+    Unknown =>
+      raise CalamineError::Msg(
+        "Unknown workbook format - unable to detect file type even with filename hint",
+      )
   }
 }
 
@@ -181,6 +283,20 @@ impl ReaderRef for XlsbReader with worksheet_range_ref(self, name) {
       Cell::new((row, col), data_ref)
     })
   Range::from_sparse(cells)
+}
+
+///|
+impl Reader for AutoWorkbook with new(data) {
+  match detect_workbook_type(data) {
+    Xlsx => Xlsx(XlsxReader::new(data))
+    Xls => Xls(XlsReader::new(data))
+    Xlsb => Xlsb(XlsbReader::new(data))
+    Ods => Ods(OdsReader::new(data))
+    Unknown =>
+      raise CalamineError::Msg(
+        "Unknown workbook format - unable to detect file type from content",
+      )
+  }
 }
 
 ///|
@@ -298,18 +414,6 @@ pub(all) enum AutoWorkbook {
   Xlsb(XlsbReader)
   Ods(OdsReader)
 } derive(Show, Eq)
-
-///|
-/// Forward Reader methods to the appropriate concrete reader
-impl Reader for AutoWorkbook with new(data) {
-  match detect_workbook_type(data) {
-    Xlsx => Xlsx(XlsxReader::new(data))
-    Xls => Xls(XlsReader::new(data))
-    Xlsb => Xlsb(XlsbReader::new(data))
-    Ods => Ods(OdsReader::new(data))
-    Unknown => raise CalamineError::Msg("Unknown workbook format")
-  }
-}
 
 ///|
 impl Reader for AutoWorkbook with with_header_row(self, header_row) {
