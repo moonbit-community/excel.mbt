@@ -148,19 +148,6 @@ pub(all) suberror XlsxError {
 } derive(Show, Eq)
 
 ///|
-/// An enum for VBA specific errors.
-pub(all) suberror VbaError {
-  /// A wrapper for IO errors
-  Io(String)
-  /// Invalid directory entry
-  InvalidDirectory
-  /// Parse error
-  Parse(String)
-  /// General VBA error
-  General(String)
-} derive(Show, Eq)
-
-///|
 /// An enum for deserialization errors.
 pub(all) suberror DeError {
   /// Missing header

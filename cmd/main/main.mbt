@@ -105,7 +105,7 @@ fn demo_workbook_detection() -> Unit {
   println("- Unknown signature detected as: \{unknown_type}")
 
   // Demonstrate VBA project handling
-  let vba_data = b"VBA Project Data"
-  let vba = @lib.VbaProject::new(vba_data)
-  println("- VBA project data length: \{vba.data().length()}")
+  let vba = @lib.VbaProject::create_empty()
+  println("- VBA project references: \{vba.get_references().length()}")
+  println("- VBA project modules: \{vba.get_module_names().length()}")
 }

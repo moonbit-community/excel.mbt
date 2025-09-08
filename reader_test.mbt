@@ -1,10 +1,8 @@
 ///|
 test "vba_project_creation" {
-  let data = b"VBA_PROJECT_DATA"
-  let vba = VbaProject::new(data)
-  inspect(vba.data(), content=(
-    #|b"\x56\x42\x41\x5f\x50\x52\x4f\x4a\x45\x43\x54\x5f\x44\x41\x54\x41"
-  ))
+  let vba = VbaProject::create_empty()
+  inspect(vba.get_references().length(), content="2")
+  inspect(vba.get_module_names().length(), content="1")
 }
 
 ///|
@@ -28,12 +26,11 @@ test "workbook_type_detection" {
 ///|
 test "xlsx_reader_struct" {
   let data = b"PK\x03\x04test_data"
-  let reader = XlsxReader::{ 
-    data, 
-    header_row: FirstNonEmptyRow, 
-    metadata: Metadata::default() 
+  let reader = XlsxReader::{
+    data,
+    header_row: FirstNonEmptyRow,
+    metadata: Metadata::default(),
   }
-  
   inspect(reader.data.length(), content="13")
   inspect(reader.header_row, content="FirstNonEmptyRow")
 }
