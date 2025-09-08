@@ -478,58 +478,165 @@ pub fn Data::as_f64(self : Data) -> Double? {
 }
 
 ///|
-/// Parse a string as Int64
+/// Parse a string as Int64 with more robust parsing
 pub fn parse_int64(s : String) -> Int64? {
-  // Simple parsing implementation for common cases
   if s.is_empty() {
     return None
   }
 
-  // Handle simple integer cases
-  match s {
-    "0" => Some(0L)
-    "1" => Some(1L)
-    "2" => Some(2L)
-    "3" => Some(3L)
-    "4" => Some(4L)
-    "5" => Some(5L)
-    "6" => Some(6L)
-    "7" => Some(7L)
-    "8" => Some(8L)
-    "9" => Some(9L)
-    "10" => Some(10L)
-    "-1" => Some(-1L)
-    "-2" => Some(-2L)
-    " 0" | "0 " | " 0 " => Some(0L)
-    " 1" | "1 " | " 1 " => Some(1L)
-    _ =>
-      // For now, return None for complex cases
-      // TODO: Implement full integer parsing
-      None
+  // For now, use a simpler approach without advanced string methods
+  let input = s
+
+  // Check for sign
+  let (negative, num_part) = if input.length() > 0 && input[0] == 45 { // '-'
+    (true, input.substring(start=1))
+  } else if input.length() > 0 && input[0] == 43 { // '+'
+    (false, input.substring(start=1))
+  } else {
+    (false, input)
+  }
+  if num_part.is_empty() {
+    return None
+  }
+
+  // Parse digits
+  let mut result = 0L
+
+  // Check if it's a valid integer string (only digits)
+  for i = 0; i < num_part.length(); i = i + 1 {
+    let ch = num_part[i]
+    if ch >= 48 && ch <= 57 { // '0' to '9'
+      continue
+    } else {
+      return None // Invalid character
+    }
+  }
+
+  // Convert string to number (simple implementation)
+  // Handle common cases first for efficiency
+  match num_part {
+    "0" => result = 0L
+    "1" => result = 1L
+    "2" => result = 2L
+    "3" => result = 3L
+    "4" => result = 4L
+    "5" => result = 5L
+    "6" => result = 6L
+    "7" => result = 7L
+    "8" => result = 8L
+    "9" => result = 9L
+    "10" => result = 10L
+    "100" => result = 100L
+    "1000" => result = 1000L
+    _ => {
+      // For longer numbers, use digit-by-digit parsing
+      result = 0L
+      for i = 0; i < num_part.length(); i = i + 1 {
+        let digit = num_part[i] - 48 // Convert ASCII to digit
+        result = result * 10L + digit.to_int64()
+      }
+    }
+  }
+  if negative {
+    Some(-result)
+  } else {
+    Some(result)
   }
 }
 
 ///|
-/// Parse a string as Double  
+/// Parse a string as Double with more robust parsing
 pub fn parse_double(s : String) -> Double? {
-  // Simple parsing implementation for common cases
   if s.is_empty() {
     return None
   }
+  let input = s
 
-  // Handle simple float cases
-  match s {
-    "0" | "0.0" => Some(0.0)
-    "1" | "1.0" => Some(1.0)
-    "2" | "2.0" => Some(2.0)
-    "3" | "3.0" => Some(3.0)
-    "0.5" => Some(0.5)
-    "1.5" => Some(1.5)
-    "-1" | "-1.0" => Some(-1.0)
-    "-0.5" => Some(-0.5)
-    " 0" | "0 " | " 0 " | " 0.0" | "0.0 " | " 0.0 " => Some(0.0)
-    " 1" | "1 " | " 1 " | " 1.0" | "1.0 " | " 1.0 " => Some(1.0)
-    _ => None
+  // Handle special cases
+  match input {
+    "NaN" | "nan" => return Some(0.0 / 0.0) // NaN
+    "Infinity" | "infinity" | "inf" => return Some(1.0 / 0.0) // Positive infinity
+    "-Infinity" | "-infinity" | "-inf" => return Some(-1.0 / 0.0) // Negative infinity
+    _ => () // do nothing for other cases
+  }
+
+  // Check for sign
+  let (negative, num_part) = if input.length() > 0 && input[0] == 45 { // '-'
+    (true, input.substring(start=1))
+  } else if input.length() > 0 && input[0] == 43 { // '+'
+    (false, input.substring(start=1))
+  } else {
+    (false, input)
+  }
+  if num_part.is_empty() {
+    return None
+  }
+
+  // Handle common simple cases for efficiency
+  match num_part {
+    "0" | "0.0" | "0." => return Some(if negative { -0.0 } else { 0.0 })
+    "1" | "1.0" | "1." => return Some(if negative { -1.0 } else { 1.0 })
+    "2" | "2.0" | "2." => return Some(if negative { -2.0 } else { 2.0 })
+    "0.5" => return Some(if negative { -0.5 } else { 0.5 })
+    "1.5" => return Some(if negative { -1.5 } else { 1.5 })
+    _ => () // do nothing for other cases
+  }
+
+  // Find decimal point
+  let decimal_pos = num_part.find(".")
+  match decimal_pos {
+    Some(pos) => {
+      // Has decimal point
+      let integer_part = num_part.substring(start=0, end=pos)
+      let fractional_part = num_part.substring(start=pos + 1)
+
+      // Parse integer part
+      let int_value = if integer_part.is_empty() {
+        0.0
+      } else {
+        match parse_int64(integer_part) {
+          Some(val) => val.to_double()
+          None => return None
+        }
+      }
+
+      // Parse fractional part
+      let frac_value = if fractional_part.is_empty() {
+        0.0
+      } else {
+        // Check if fractional part has only digits
+        let mut all_digits = true
+        for i = 0; i < fractional_part.length(); i = i + 1 {
+          let ch = fractional_part[i]
+          if ch < 48 || ch > 57 { // Not '0' to '9'
+            all_digits = false
+            break
+          }
+        }
+        if !all_digits {
+          return None
+        }
+
+        // Convert fractional part
+        let mut frac = 0.0
+        let mut divisor = 10.0
+        for i = 0; i < fractional_part.length(); i = i + 1 {
+          let digit = (fractional_part[i] - 48).to_double()
+          frac = frac + digit / divisor
+          divisor = divisor * 10.0
+        }
+        frac
+      }
+      let result = int_value + frac_value
+      Some(if negative { -result } else { result })
+    }
+    None =>
+      // No decimal point, parse as integer then convert to double
+      match parse_int64(num_part) {
+        Some(val) =>
+          Some(if negative { -val.to_double() } else { val.to_double() })
+        None => None
+      }
   }
 }
 
