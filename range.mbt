@@ -330,3 +330,186 @@ pub fn[T] Table::data(self : Table[T]) -> Range[T] {
 pub fn[T] Table::to_range(self : Table[T]) -> Range[T] {
   self.data
 }
+
+///|
+/// Get an iterator over the rows of a Range (returns Array of rows).
+/// Each row is an ArrayView over the range data.
+pub fn[T] Range::rows(self : Range[T]) -> Array[ArrayView[T]] {
+  if self.is_empty() {
+    return []
+  }
+  let width = self.width().reinterpret_as_int()
+  let rows = []
+  let mut start = 0
+  while start < self.inner.length() {
+    let end = start + width
+    if end <= self.inner.length() {
+      rows.push(self.inner[start:end])
+    }
+    start = end
+  }
+  rows
+}
+
+///|
+/// Get an iterator over all the cells in a Range.
+/// Returns an Array of tuples (row, col, value) where row and col are relative indices.
+pub fn[T] Range::cells(self : Range[T]) -> Array[(UInt, UInt, T)] {
+  let result = []
+  let width = self.width()
+  for i = 0; i < self.inner.length(); i = i + 1 {
+    let row = (i / width.reinterpret_as_int()).reinterpret_as_uint()
+    let col = (i % width.reinterpret_as_int()).reinterpret_as_uint()
+    result.push((row, col, self.inner[i]))
+  }
+  result
+}
+
+///|
+/// Get an iterator over the used cells in a Range.
+/// Returns an Array of tuples (row, col, value) for non-default values only.
+pub fn[T : Default + Eq] Range::used_cells(
+  self : Range[T],
+) -> Array[(UInt, UInt, T)] {
+  let result = []
+  let width = self.width()
+  let default_val = T::default()
+  for i = 0; i < self.inner.length(); i = i + 1 {
+    let value = self.inner[i]
+    if value != default_val {
+      let row = (i / width.reinterpret_as_int()).reinterpret_as_uint()
+      let col = (i % width.reinterpret_as_int()).reinterpret_as_uint()
+      result.push((row, col, value))
+    }
+  }
+  result
+}
+
+///|
+/// Build a new Range out of the current range (sub-range extraction).
+/// Returns a new Range with cloned data for the specified bounds.
+pub fn[T : Default] Range::range(
+  self : Range[T],
+  start : (UInt, UInt),
+  end : (UInt, UInt),
+) -> Range[T] {
+  let other = Range::new(start, end)
+  let (self_start_row, self_start_col) = self.start
+  let (self_end_row, self_end_col) = self.end
+  let (other_start_row, other_start_col) = other.start
+  let (other_end_row, other_end_col) = other.end
+
+  // Calculate intersection bounds
+  let start_row = if self_start_row > other_start_row {
+    self_start_row
+  } else {
+    other_start_row
+  }
+  let end_row = if self_end_row < other_end_row {
+    self_end_row
+  } else {
+    other_end_row
+  }
+  let start_col = if self_start_col > other_start_col {
+    self_start_col
+  } else {
+    other_start_col
+  }
+  let end_col = if self_end_col < other_end_col {
+    self_end_col
+  } else {
+    other_end_col
+  }
+  if start_row > end_row || start_col > end_col {
+    return other
+  }
+  let self_width = self.width()
+  let other_width = other.width()
+
+  // Copy data from self to other
+  let self_row_start = (start_row - self_start_row).reinterpret_as_int()
+  let self_row_end = (end_row + 1U - self_start_row).reinterpret_as_int()
+  let self_col_start = (start_col - self_start_col).reinterpret_as_int()
+  let self_col_end = (end_col + 1U - self_start_col).reinterpret_as_int()
+  let other_row_start = (start_row - other_start_row).reinterpret_as_int()
+  let other_row_end = (end_row + 1U - other_start_row).reinterpret_as_int()
+  let other_col_start = (start_col - other_start_col).reinterpret_as_int()
+  let other_col_end = (end_col + 1U - other_start_col).reinterpret_as_int()
+  for r = 0; r < other_row_end - other_row_start; r = r + 1 {
+    let self_row_idx = self_row_start + r
+    let other_row_idx = other_row_start + r
+    for c = 0; c < other_col_end - other_col_start; c = c + 1 {
+      let self_col_idx = self_col_start + c
+      let other_col_idx = other_col_start + c
+      let self_idx = self_row_idx * self_width.reinterpret_as_int() +
+        self_col_idx
+      let other_idx = other_row_idx * other_width.reinterpret_as_int() +
+        other_col_idx
+      if self_idx >= 0 &&
+        self_idx < self.inner.length() &&
+        other_idx >= 0 &&
+        other_idx < other.inner.length() {
+        other.inner[other_idx] = self.inner[self_idx]
+      }
+    }
+  }
+  other
+}
+
+///|
+/// Implementation of indexing for Range rows.
+/// Get a row by its relative index as an ArrayView.
+pub fn[T] Range::get_row(self : Range[T], index : UInt) -> ArrayView[T]? {
+  if index >= self.height() {
+    return None
+  }
+  let width = self.width().reinterpret_as_int()
+  let start = (index * self.width()).reinterpret_as_int()
+  let end = start + width
+  if end <= self.inner.length() {
+    Some(self.inner[start:end])
+  } else {
+    None
+  }
+}
+
+///|
+/// Implementation of indexing for Range cells.
+/// Get a cell value by its relative position (row, column).
+pub fn[T] Range::get_cell(self : Range[T], position : (UInt, UInt)) -> T? {
+  self.get(position)
+}
+
+///|
+/// Set a cell value by its relative position (row, column).
+pub fn[T] Range::set_cell(
+  self : Range[T],
+  position : (UInt, UInt),
+  value : T,
+) -> Unit {
+  let (row, col) = position
+  let (height, width) = self.get_size()
+  if col < width && row < height {
+    let index = (row * width + col).reinterpret_as_int()
+    if index >= 0 && index < self.inner.length() {
+      self.inner[index] = value
+    }
+  }
+}
+
+///|
+/// Get headers for a Range (first row as strings).
+/// Returns the first row of the range as an optional vector of strings.
+pub fn[T : Show] Range::headers(self : Range[T]) -> Array[String]? {
+  let rows = self.rows()
+  if rows.length() > 0 {
+    let first_row = rows[0]
+    let headers = []
+    for i = 0; i < first_row.length(); i = i + 1 {
+      headers.push(first_row[i].to_string())
+    }
+    Some(headers)
+  } else {
+    None
+  }
+}

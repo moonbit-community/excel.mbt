@@ -392,7 +392,7 @@ pub fn parse_int64(s : String) -> Int64? {
   if s.is_empty() {
     return None
   }
-  
+
   // Handle simple integer cases
   match s {
     "0" => Some(0L)
@@ -410,11 +410,10 @@ pub fn parse_int64(s : String) -> Int64? {
     "-2" => Some(-2L)
     " 0" | "0 " | " 0 " => Some(0L)
     " 1" | "1 " | " 1 " => Some(1L)
-    _ => {
+    _ =>
       // For now, return None for complex cases
       // TODO: Implement full integer parsing
       None
-    }
   }
 }
 
@@ -425,7 +424,7 @@ pub fn parse_double(s : String) -> Double? {
   if s.is_empty() {
     return None
   }
-  
+
   // Handle simple float cases
   match s {
     "0" | "0.0" => Some(0.0)
@@ -438,11 +437,7 @@ pub fn parse_double(s : String) -> Double? {
     "-0.5" => Some(-0.5)
     " 0" | "0 " | " 0 " | " 0.0" | "0.0 " | " 0.0 " => Some(0.0)
     " 1" | "1 " | " 1 " | " 1.0" | "1.0 " | " 1.0 " => Some(1.0)
-    _ => {
-      // For now, return None for complex cases  
-      // TODO: Implement full float parsing
-      None
-    }
+    _ => None
   }
 }
 
