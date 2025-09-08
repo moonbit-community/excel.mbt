@@ -159,6 +159,40 @@ pub fn ExcelDateTime::as_f64(self : ExcelDateTime) -> Double {
 }
 
 ///|
+/// Convert Excel datetime to date string representation
+pub fn ExcelDateTime::as_date(self : ExcelDateTime) -> String {
+  // Simplified date conversion - returns ISO format date
+  // In a full implementation, this would properly convert Excel serial dates
+  "1900-01-01" // placeholder for now
+}
+
+///|
+/// Convert Excel datetime to time string representation  
+pub fn ExcelDateTime::as_time(self : ExcelDateTime) -> String {
+  // Simplified time conversion - returns ISO format time
+  // In a full implementation, this would properly convert Excel serial dates
+  "00:00:00" // placeholder for now
+}
+
+///|
+/// Convert Excel datetime to duration
+pub fn ExcelDateTime::as_duration(self : ExcelDateTime) -> String? {
+  if self.is_duration() {
+    Some("PT0S") // placeholder duration format
+  } else {
+    None
+  }
+}
+
+///|
+/// Convert Excel datetime to datetime string representation
+pub fn ExcelDateTime::as_datetime(self : ExcelDateTime) -> String {
+  // Simplified datetime conversion - returns ISO format datetime
+  // In a full implementation, this would properly convert Excel serial dates
+  "1900-01-01T00:00:00" // placeholder for now
+}
+
+///|
 /// An enum to represent all different data types that can appear as
 /// a value in a worksheet cell
 pub(all) enum Data {
@@ -687,6 +721,18 @@ pub trait DataType {
 
   /// Try converting data type into a float
   as_f64(Self) -> Double?
+
+  /// Try converting data type into a date
+  as_date(Self) -> String?
+
+  /// Try converting data type into a time
+  as_time(Self) -> String?
+
+  /// Try converting data type into a duration
+  as_duration(Self) -> String?
+
+  /// Try converting data type into a datetime
+  as_datetime(Self) -> String?
 }
 
 ///|
@@ -791,6 +837,75 @@ impl DataType for Data with as_f64(self) {
 }
 
 ///|
+/// Try converting data type into a date (if datetime/date conversion is available)
+impl DataType for Data with as_date(self) {
+  match self {
+    DateTime(dt) => Some(dt.as_date())
+    DateTimeIso(s) =>
+      // Try to parse ISO date string (simplified implementation)
+      if s.length() >= 10 {
+        // Extract date part (YYYY-MM-DD)
+        let date_part = s.substring(start=0, end=10)
+        // For now, return the date as a string representation
+        // In a full implementation, this would parse to a proper date type
+        Some(date_part)
+      } else {
+        None
+      }
+    _ => None
+  }
+}
+
+///|
+/// Try converting data type into a time
+impl DataType for Data with as_time(self) {
+  match self {
+    DateTime(dt) => Some(dt.as_time())
+    DateTimeIso(s) =>
+      // Try to parse ISO date string (simplified implementation)
+      if s.length() >= 10 {
+        // Extract date part (YYYY-MM-DD)
+        let date_part = s.substring(start=0, end=10)
+        Some(date_part)
+      } else {
+        None
+      }
+    DurationIso(s) => Some(s) // Duration ISO can represent time
+    _ => None
+  }
+}
+
+///|
+/// Try converting data type into a duration
+impl DataType for Data with as_duration(self) {
+  match self {
+    DateTime(dt) => dt.as_duration()
+    DurationIso(s) => Some(s) // Return the duration string
+    _ => None
+  }
+}
+
+///|
+/// Try converting data type into a datetime
+impl DataType for Data with as_datetime(self) {
+  match self {
+    Int(i) => {
+      // Convert Excel serial date to datetime
+      let excel_dt = ExcelDateTime::new(i.to_double(), DateTime, false)
+      Some(excel_dt.as_datetime())
+    }
+    Float(f) => {
+      // Convert Excel serial date to datetime  
+      let excel_dt = ExcelDateTime::new(f, DateTime, false)
+      Some(excel_dt.as_datetime())
+    }
+    DateTime(dt) => Some(dt.as_datetime())
+    DateTimeIso(s) => Some(s) // Return the ISO datetime string
+    _ => None
+  }
+}
+
+///|
 /// Implementation of DataType trait for DataRef
 impl DataType for DataRef with is_empty(self) {
   self.is_empty()
@@ -889,6 +1004,98 @@ impl DataType for DataRef with as_i64(self) {
 ///|
 impl DataType for DataRef with as_f64(self) {
   self.as_f64()
+}
+
+///|
+/// Try converting data type into a date (if datetime/date conversion is available)
+impl DataType for DataRef with as_date(self) {
+  match self {
+    DateTime(dt) => Some(dt.as_date())
+    DateTimeIso(s) =>
+      // Try to parse ISO date string (simplified implementation)
+      if s.length() >= 10 {
+        // Extract date part (YYYY-MM-DD)
+        let date_part = s.substring(start=0, end=10)
+        Some(date_part)
+      } else {
+        None
+      }
+    _ => None
+  }
+}
+
+///|
+/// Try converting data type into a time
+impl DataType for DataRef with as_time(self) {
+  match self {
+    DateTime(dt) => Some(dt.as_time())
+    DateTimeIso(s) =>
+      // Try to extract time part from ISO datetime string
+      if s.contains("T") {
+        let parts = s.split("T").collect()
+        if parts.length() >= 2 {
+          Some(parts[1].to_string())
+        } else {
+          None
+        }
+      } else {
+        None
+      }
+    DurationIso(s) => Some(s) // Duration ISO can represent time
+    SharedString(s) =>
+      // Try to parse as datetime string
+      if s.contains("T") {
+        let parts = s.split("T").collect()
+        if parts.length() >= 2 {
+          Some(parts[1].to_string())
+        } else {
+          None
+        }
+      } else {
+        None
+      }
+    _ => None
+  }
+}
+
+///|
+/// Try converting data type into a duration
+impl DataType for DataRef with as_duration(self) {
+  match self {
+    DateTime(dt) => dt.as_duration()
+    DurationIso(s) => Some(s) // Return the duration string
+    SharedString(s) => {
+      // Try to parse as duration
+      let str = s.to_string()
+      if str.strip_prefix("P").is_some() || str.strip_prefix("PT").is_some() {
+        Some(s)
+      } else {
+        None
+      }
+    }
+    _ => None
+  }
+}
+
+///|
+/// Try converting data type into a datetime
+impl DataType for DataRef with as_datetime(self) {
+  match self {
+    Int(i) => {
+      // Convert Excel serial date to datetime
+      let excel_dt = ExcelDateTime::new(i.to_double(), DateTime, false)
+      Some(excel_dt.as_datetime())
+    }
+    Float(f) => {
+      // Convert Excel serial date to datetime  
+      let excel_dt = ExcelDateTime::new(f, DateTime, false)
+      Some(excel_dt.as_datetime())
+    }
+    DateTime(dt) => Some(dt.as_datetime())
+    DateTimeIso(s) => Some(s) // Return the ISO datetime string
+    SharedString(s) => Some(s) // Return the shared string
+    _ => None
+  }
 }
 
 ///|
