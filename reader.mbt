@@ -34,6 +34,18 @@ pub trait Reader {
   /// Get the nth worksheet. Shortcut for getting the nth
   /// worksheet name, then the corresponding worksheet.
   worksheet_range_at(Self, Int) -> Range[Data]? raise CalamineError
+
+  /// Load tables in the workbook (for formats that support it)
+  load_tables(Self) -> Unit raise CalamineError
+
+  /// Get table by name (for formats that support it)
+  table_by_name(Self, String) -> Table[Data]? raise CalamineError
+
+  /// Get all table names in the workbook
+  table_names(Self) -> Array[String]
+
+  /// Get table names in a specific sheet
+  table_names_in_sheet(Self, String) -> Array[String]
 }
 
 ///|
@@ -44,126 +56,6 @@ pub trait ReaderRef: Reader {
 
   /// Get the nth worksheet range where shared string values are only borrowed.
   worksheet_range_at_ref(Self, Int) -> Range[DataRef]? raise CalamineError
-}
-
-///|
-/// VBA Project Reference
-pub(all) struct VbaReference {
-  /// Reference name
-  name : String
-  /// Reference description  
-  description : String
-  /// Reference path/location
-  path : String
-} derive(Show, Eq)
-
-///|
-/// Create a new VBA reference
-pub fn VbaReference::new(
-  name : String,
-  description : String,
-  path : String,
-) -> VbaReference {
-  { name, description, path }
-}
-
-///|
-/// Check if the reference location is accessible (simplified - always returns false for now)
-pub fn VbaReference::is_missing(self : VbaReference) -> Bool {
-  // For now, we can't check file system access in MoonBit, so return false
-  false
-}
-
-///|
-/// VBA Project with enhanced structure
-pub(all) struct VbaProject {
-  /// Raw project data
-  data : Bytes
-  /// List of VBA references
-  references : Array[VbaReference]
-  /// Module names and their content
-  modules : Map[String, Bytes]
-  /// Encoding information (simplified as string for now)
-  encoding : String
-} derive(Show, Eq)
-
-///|
-/// Create a new VBA project with basic data
-pub fn VbaProject::new(data : Bytes) -> VbaProject {
-  { data, references: [], modules: Map::new(), encoding: "UTF-8" }
-}
-
-///|
-/// Create a VBA project with full metadata
-pub fn VbaProject::new_with_metadata(
-  data : Bytes,
-  references : Array[VbaReference],
-  modules : Map[String, Bytes],
-  encoding : String,
-) -> VbaProject {
-  { data, references, modules, encoding }
-}
-
-///|
-/// Get VBA project raw data
-pub fn VbaProject::data(self : VbaProject) -> Bytes {
-  self.data
-}
-
-///|
-/// Get list of VBA references
-pub fn VbaProject::get_references(self : VbaProject) -> Array[VbaReference] {
-  self.references
-}
-
-///|
-/// Get list of module names
-pub fn VbaProject::get_module_names(self : VbaProject) -> Array[String] {
-  self.modules.iter().map(fn(pair) { pair.0 }).collect()
-}
-
-///|
-/// Get module content by name (returns raw bytes for now)
-pub fn VbaProject::get_module_raw(self : VbaProject, name : String) -> Bytes? {
-  self.modules.get(name)
-}
-
-///|
-/// Get module content as string (simplified UTF-8 conversion for now)
-pub fn VbaProject::get_module(self : VbaProject, name : String) -> String? {
-  match self.modules.get(name) {
-    Some(module_data) =>
-      // For now, assume UTF-8 encoding
-      // In a full implementation, this would respect the project encoding
-      Some(module_data.to_string())
-    None => None
-  }
-}
-
-///|
-/// Add a module to the VBA project
-pub fn VbaProject::add_module(
-  self : VbaProject,
-  name : String,
-  content : Bytes,
-) -> VbaProject {
-  let new_modules = self.modules
-  new_modules[name] = content
-  { ..self, modules: new_modules }
-}
-
-///|
-/// Add a reference to the VBA project
-pub fn VbaProject::add_reference(
-  self : VbaProject,
-  reference : VbaReference,
-) -> VbaProject {
-  let new_refs = Array::new()
-  for reference_item in self.references {
-    new_refs.push(reference_item)
-  }
-  new_refs.push(reference)
-  { ..self, references: new_refs }
 }
 
 ///|
@@ -216,15 +108,99 @@ pub fn detect_workbook_type(data : Bytes) -> WorkbookType {
 }
 
 ///|
-/// Auto-detect and open any supported workbook format
-pub fn open_workbook_auto(data : Bytes) -> AutoWorkbook raise CalamineError {
-  match detect_workbook_type(data) {
-    Xlsx => AutoWorkbook::Xlsx(XlsxReader::new(data))
-    Xls => AutoWorkbook::Xls(XlsReader::new(data))
-    Xlsb => AutoWorkbook::Xlsb(XlsbReader::new(data))
-    Ods => AutoWorkbook::Ods(OdsReader::new(data))
-    Unknown => raise CalamineError::Msg("Unknown workbook format")
-  }
+impl Reader for OdsReader with load_tables(self) {
+  // ODS format doesn't support Excel-style tables
+  return
+}
+
+///|
+impl Reader for OdsReader with table_by_name(self, name) {
+  // ODS format doesn't support Excel-style tables
+  None
+}
+
+///|
+impl Reader for OdsReader with table_names(self) {
+  // ODS format doesn't support Excel-style tables
+  []
+}
+
+///|
+impl Reader for OdsReader with table_names_in_sheet(self, sheet_name) {
+  // ODS format doesn't support Excel-style tables
+  []
+}
+
+///|
+impl Reader for XlsbReader with load_tables(self) {
+  // For now, no-op - real implementation would parse tables from XLSB
+  return
+}
+
+///|
+impl Reader for XlsbReader with table_by_name(self, name) {
+  // For now, return None - real implementation would lookup table by name
+  None
+}
+
+///|
+impl Reader for XlsbReader with table_names(self) {
+  // For now, return empty array - real implementation would return all table names
+  []
+}
+
+///|
+impl Reader for XlsbReader with table_names_in_sheet(self, sheet_name) {
+  // For now, return empty array - real implementation would return table names in sheet
+  []
+}
+
+///|
+impl Reader for XlsReader with load_tables(self) {
+  // XLS format doesn't support tables
+  return
+}
+
+///|
+impl Reader for XlsReader with table_by_name(self, name) {
+  // XLS format doesn't support tables
+  None
+}
+
+///|
+impl Reader for XlsReader with table_names(self) {
+  // XLS format doesn't support tables
+  []
+}
+
+///|
+impl Reader for XlsReader with table_names_in_sheet(self, sheet_name) {
+  // XLS format doesn't support tables
+  []
+}
+
+///|
+impl Reader for XlsxReader with load_tables(self) {
+  // For now, no-op - real implementation would parse tables from XLSX
+  return
+}
+
+///|
+impl Reader for XlsxReader with table_by_name(self, name) {
+  // For now, return None - real implementation would lookup table by name
+  None
+}
+
+///|
+impl Reader for XlsxReader with table_names(self) {
+  // For now, return empty array - real implementation would return all table names
+  []
+}
+
+///|
+impl Reader for XlsxReader with table_names_in_sheet(self, sheet_name) {
+  // For now, return empty array - real implementation would return table names in sheet
+  []
 }
 
 ///|
@@ -345,6 +321,46 @@ impl Reader for AutoWorkbook with worksheet_range_at(self, n) {
     Xls(reader) => reader.worksheet_range_at(n)
     Xlsb(reader) => reader.worksheet_range_at(n)
     Ods(reader) => reader.worksheet_range_at(n)
+  }
+}
+
+///|
+impl Reader for AutoWorkbook with load_tables(self) {
+  match self {
+    Xlsx(reader) => reader.load_tables()
+    Xls(reader) => reader.load_tables()
+    Xlsb(reader) => reader.load_tables()
+    Ods(reader) => reader.load_tables()
+  }
+}
+
+///|
+impl Reader for AutoWorkbook with table_by_name(self, name) {
+  match self {
+    Xlsx(reader) => reader.table_by_name(name)
+    Xls(reader) => reader.table_by_name(name)
+    Xlsb(reader) => reader.table_by_name(name)
+    Ods(reader) => reader.table_by_name(name)
+  }
+}
+
+///|
+impl Reader for AutoWorkbook with table_names(self) {
+  match self {
+    Xlsx(reader) => reader.table_names()
+    Xls(reader) => reader.table_names()
+    Xlsb(reader) => reader.table_names()
+    Ods(reader) => reader.table_names()
+  }
+}
+
+///|
+impl Reader for AutoWorkbook with table_names_in_sheet(self, sheet_name) {
+  match self {
+    Xlsx(reader) => reader.table_names_in_sheet(sheet_name)
+    Xls(reader) => reader.table_names_in_sheet(sheet_name)
+    Xlsb(reader) => reader.table_names_in_sheet(sheet_name)
+    Ods(reader) => reader.table_names_in_sheet(sheet_name)
   }
 }
 
