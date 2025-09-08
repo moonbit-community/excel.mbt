@@ -47,21 +47,123 @@ pub trait ReaderRef: Reader {
 }
 
 ///|
-/// VBA Project placeholder
-pub(all) struct VbaProject {
-  data : Bytes
+/// VBA Project Reference
+pub(all) struct VbaReference {
+  /// Reference name
+  name : String
+  /// Reference description  
+  description : String
+  /// Reference path/location
+  path : String
 } derive(Show, Eq)
 
 ///|
-/// Create a new VBA project
-pub fn VbaProject::new(data : Bytes) -> VbaProject {
-  { data, }
+/// Create a new VBA reference
+pub fn VbaReference::new(
+  name : String,
+  description : String,
+  path : String,
+) -> VbaReference {
+  { name, description, path }
 }
 
 ///|
-/// Get VBA project data
+/// Check if the reference location is accessible (simplified - always returns false for now)
+pub fn VbaReference::is_missing(self : VbaReference) -> Bool {
+  // For now, we can't check file system access in MoonBit, so return false
+  false
+}
+
+///|
+/// VBA Project with enhanced structure
+pub(all) struct VbaProject {
+  /// Raw project data
+  data : Bytes
+  /// List of VBA references
+  references : Array[VbaReference]
+  /// Module names and their content
+  modules : Map[String, Bytes]
+  /// Encoding information (simplified as string for now)
+  encoding : String
+} derive(Show, Eq)
+
+///|
+/// Create a new VBA project with basic data
+pub fn VbaProject::new(data : Bytes) -> VbaProject {
+  { data, references: [], modules: Map::new(), encoding: "UTF-8" }
+}
+
+///|
+/// Create a VBA project with full metadata
+pub fn VbaProject::new_with_metadata(
+  data : Bytes,
+  references : Array[VbaReference],
+  modules : Map[String, Bytes],
+  encoding : String,
+) -> VbaProject {
+  { data, references, modules, encoding }
+}
+
+///|
+/// Get VBA project raw data
 pub fn VbaProject::data(self : VbaProject) -> Bytes {
   self.data
+}
+
+///|
+/// Get list of VBA references
+pub fn VbaProject::get_references(self : VbaProject) -> Array[VbaReference] {
+  self.references
+}
+
+///|
+/// Get list of module names
+pub fn VbaProject::get_module_names(self : VbaProject) -> Array[String] {
+  self.modules.iter().map(fn(pair) { pair.0 }).collect()
+}
+
+///|
+/// Get module content by name (returns raw bytes for now)
+pub fn VbaProject::get_module_raw(self : VbaProject, name : String) -> Bytes? {
+  self.modules.get(name)
+}
+
+///|
+/// Get module content as string (simplified UTF-8 conversion for now)
+pub fn VbaProject::get_module(self : VbaProject, name : String) -> String? {
+  match self.modules.get(name) {
+    Some(module_data) =>
+      // For now, assume UTF-8 encoding
+      // In a full implementation, this would respect the project encoding
+      Some(module_data.to_string())
+    None => None
+  }
+}
+
+///|
+/// Add a module to the VBA project
+pub fn VbaProject::add_module(
+  self : VbaProject,
+  name : String,
+  content : Bytes,
+) -> VbaProject {
+  let new_modules = self.modules
+  new_modules[name] = content
+  { ..self, modules: new_modules }
+}
+
+///|
+/// Add a reference to the VBA project
+pub fn VbaProject::add_reference(
+  self : VbaProject,
+  reference : VbaReference,
+) -> VbaProject {
+  let new_refs = Array::new()
+  for reference_item in self.references {
+    new_refs.push(reference_item)
+  }
+  new_refs.push(reference)
+  { ..self, references: new_refs }
 }
 
 ///|
